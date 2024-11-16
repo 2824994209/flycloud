@@ -9,11 +9,14 @@ import BasicSetting from '@/page/BasicSetting.vue';
 // import SystemInfo from '@/page/SystemInfo.vue';
 // import BackAdmin from '@/layouts/BackAdmin.vue';
 import SystemExplain from '@/admin_page/SystemExplain.vue';
-
+import UserManage from '@/admin_page/UserManage.vue';
+import adminBasicSetting from '@/admin_page/BasicSetting.vue';
 
 const routes = [
   { path: '/', component: PageDashboard },
   { path: '/admin/system', component: SystemExplain },
+  { path: '/admin/user', component: UserManage },
+  { path: '/admin/basic', component: adminBasicSetting },
   { path: '/ces', component: HelloWorld },
   { path: '/login', component: LoginPage },
   { path: '/register', component: RegisterPage },

@@ -7,7 +7,7 @@
             <div class="el-input-w" style="z-index: 999; width: 500px; ">
               
                 <div style="height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-                <p style="font-weight: bolder; margin-bottom: 20px;">注册</p>
+                <p style="font-weight: bolder; margin-bottom: 20px;margin-top: 50px;">注册</p>
 
                 <!-- 用户名输入框 -->
                 <el-input
@@ -15,11 +15,12 @@
                     style="width: 300px; margin-bottom: 30px;margin-top:-50px"
                     placeholder="账号"
                 />
-                <!-- 邮箱 -->
+                
+                <!-- 用户名输入框 -->
                 <el-input
                     v-model="registerForm.mailbox"
                     style="width: 300px; margin-bottom: 30px;"
-                    placeholder="邮箱"
+                    placeholder="用户名"
                 />
                 <!-- 密码输入框 -->
                 <el-input
@@ -63,145 +64,133 @@
   import {
     User,
   } from '@element-plus/icons-vue'
-  </script>
-  <script>
+  import { ref, reactive, watch } from 'vue';
   import axiosInstance from 'axios';
-  
-  export default {
-    data() {
-      return {
-        showPopup: false, // 控制弹窗显示
-        popupMessage: '',
-        isProcessing: false,
-        confirmPassword: '',
-        registerForm: {
-          username: '',
-          password: '',
-          mailbox: '',
-        }
+  import { useRouter } from 'vue-router';
+  import { ElNotification } from 'element-plus';
+
+  const showPopup = ref(false);
+  const popupMessage = ref('');
+  const isProcessing = ref(false);
+  const confirmPassword = ref('');
+  const registerForm = reactive({
+    username: '',
+    password: '',
+    mailbox: '',
+  });
+
+  const router = useRouter();
+
+  const submitLogin = async () => {
+    console.log('点击了注册,', registerForm);
+
+    if (isProcessing.value) {
+      return;
+    }
+    isProcessing.value = true;
+
+    if (!registerForm.username) {
+      ElNotification({
+        duration: 2000,
+        title: 'warning',
+        message: '账号不能为空',
+        type: 'warning',
+        showClose: false,
+      });
+      isProcessing.value = false;
+      return;
+    }
+    if (!registerForm.mailbox) {
+      ElNotification({
+        duration: 2000,
+        title: 'warning',
+        message: '邮箱不能为空',
+        type: 'warning',
+        showClose: false,
+      });
+      isProcessing.value = false;
+      return;
+    }
+    if (!registerForm.password) {
+      ElNotification({
+        duration: 2000,
+        title: 'warning',
+        message: '密码不能为空',
+        type: 'warning',
+        showClose: false,
+      });
+      isProcessing.value = false;
+      return;
+    }
+    if (!confirmPassword.value) {
+      ElNotification({
+        duration: 2000,
+        title: 'warning',
+        message: '密码不能为空',
+        type: 'warning',
+        showClose: false,
+      });
+      isProcessing.value = false;
+      return;
+    }
+    if (registerForm.password !== confirmPassword.value) {
+      ElNotification({
+        duration: 2000,
+        title: 'warning',
+        message: '输入的密码不一样',
+        type: 'warning',
+        showClose: false,
+      });
+      isProcessing.value = false;
+      return;
+    }
+
+    const params = {
+      username: registerForm.username,
+      password: registerForm.password,
+      mailbox: registerForm.mailbox,
+    };
+
+    try {
+      const res = await axiosInstance.post(`${import.meta.env.VITE_BACKEND_ADDRESS}/register`, params);
+      console.log('res', res);
+      if (res.status === 200) {
+        console.log('注册成功', res.data);
+        router.push('/login');
+        ElNotification({
+          duration: 2000,
+          title: 'success',
+          message: '注册成功',
+          type: 'success',
+          showClose: false,
+        });
       }
-    },
-    methods: {
-      // 前台判断输入框是否为空
-      async submitLogin() { // 确保方法声明为 async
-        console.log('点击了注册,', this.registerForm);
-  
-        // 防抖
-        if (this.isProcessing) {
-          return;
-        }
-        this.isProcessing = true; // 设置处理标志
-  
-        // 验证输入
-        if (!this.registerForm.username) {
-          // this.popupMessage = "账号不能为空";
-          // this.showPopup = true;
-          this.$notify.warning({
-              duration: 2000,
-              title: 'warning',
-              message: '账号不能为空',
-              showClose: false
-            });
-          this.isProcessing = false;
-          return;
-        }
-        if (!this.registerForm.mailbox) {
-          this.$notify.warning({
-              duration: 2000,
-              title: 'warning',
-              message: '邮箱不能为空',
-              showClose: false
-            });
-          this.isProcessing = false;
-          return;
-        }
-        if (!this.registerForm.password) {
-          // this.popupMessage = "密码不能为空";
-          // this.showPopup = true;
-          this.$notify.warning({
-              duration: 2000,
-              title: 'warning',
-              message: '密码不能为空',
-              showClose: false
-            });
-          this.isProcessing = false;
-          return;
-        }
-        if (!this.confirmPassword) {
-          // this.popupMessage = "密码不能为空";
-          // this.showPopup = true;
-          this.$notify.warning({
-              duration: 2000,
-              title: 'warning',
-              message: '密码不能为空',
-              showClose: false
-            });
-          this.isProcessing = false;
-          return;
-        }
-        if (this.registerForm.password != this.confirmPassword) {
-          // this.popupMessage = "密码不能为空";
-          // this.showPopup = true;
-          this.$notify.warning({
-              duration: 2000,
-              title: 'warning',
-              message: '输入的密码不一样',
-              showClose: false
-            });
-          this.isProcessing = false;
-          return;
-        }
-  
-        // 登录的post请求
-        const params = {
-          username: this.registerForm.username,
-          password: this.registerForm.password,
-          mailbox: this.registerForm.mailbox,
-        };
-  
-        try {
-          const res = await axiosInstance.post(`${this.$backendAddress}/register`, params);
-          console.log('res', res);
-          if (res.status === 200) {
-            console.log('注册成功', res.data);
-            this.$router.push('/login'); // 修改为你实际需要的路径
-            this.$notify.success({
-              duration: 2000,
-              title: 'success',
-              message: '注册成功',
-              showClose: false
-            });
-          } 
-        } catch (error) {
-          console.error('请求错误', error);
-          this.$notify.error({
-              duration: 2000,
-              title: 'error',
-              message: '注册失败',
-              showClose: false
-            });
-          // this.popupMessage = "请求错误: " + error.message;
-          // this.showPopup = true;
-        } finally {
-          this.isProcessing = false;
-        }
-      }
-    },
-    watch: {
-      showPopup(newVal) {
-        if (newVal) {
-          setTimeout(() => {
-            this.showPopup = false;
-          }, 1500);
-        } else {
-          this.$el.querySelector('.popup').classList.add('hide');
-          setTimeout(() => {
-            this.showPopup = false;
-          }, 1500);
-        }
-      }
-    },
+    } catch (error) {
+      console.error('请求错误', error);
+      ElNotification({
+        duration: 2000,
+        title: 'error',
+        message: '注册失败',
+        type: 'error',
+        showClose: false,
+      });
+    } finally {
+      isProcessing.value = false;
+    }
   };
+
+  watch(showPopup, (newVal) => {
+    if (newVal) {
+      setTimeout(() => {
+        showPopup.value = false;
+      }, 1500);
+    } else {
+      document.querySelector('.popup').classList.add('hide');
+      setTimeout(() => {
+        showPopup.value = false;
+      }, 1500);
+    }
+  });
   </script>
   
   <style scoped>

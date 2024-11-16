@@ -204,16 +204,16 @@
     }
   .card-header {
     display: flex;
-    align-items: center; /* 保证内容垂直居中 */
-    justify-content: space-between; /* 保证子元素之间的间距均匀分布 */
-    width: 100%; /* 确保卡片头部占满整个宽度 */
+    align-items: center;
+    justify-content: space-between;
+    width: 100%; 
   }
     .popup {
       position: fixed;
-      top: 20%; /* 将弹窗向屏幕的上方移动 */
+      top: 20%;
       left: 50%;
-      transform: translate(-50%, -50%); /* 保持水平居中，稍微向上调整 */
-      background-color: #455A64; /* 深色背景，与#D3DCE6形成对比 */
+      transform: translate(-50%, -50%); 
+      background-color: #455A64; 
       color: white;
       text-align: center;
       padding: 20px;
