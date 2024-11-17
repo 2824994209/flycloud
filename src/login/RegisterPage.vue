@@ -11,14 +11,14 @@
 
                 <!-- 用户名输入框 -->
                 <el-input
-                    v-model="registerForm.username"
+                    v-model="registerForm.account"
                     style="width: 300px; margin-bottom: 30px;margin-top:-50px"
                     placeholder="账号"
                 />
                 
                 <!-- 用户名输入框 -->
                 <el-input
-                    v-model="registerForm.mailbox"
+                    v-model="registerForm.username"
                     style="width: 300px; margin-bottom: 30px;"
                     placeholder="用户名"
                 />
@@ -74,9 +74,9 @@
   const isProcessing = ref(false);
   const confirmPassword = ref('');
   const registerForm = reactive({
-    username: '',
+    account: '',
     password: '',
-    mailbox: '',
+    username: '',
   });
 
   const router = useRouter();
@@ -89,7 +89,7 @@
     }
     isProcessing.value = true;
 
-    if (!registerForm.username) {
+    if (!registerForm.account) {
       ElNotification({
         duration: 2000,
         title: 'warning',
@@ -100,11 +100,11 @@
       isProcessing.value = false;
       return;
     }
-    if (!registerForm.mailbox) {
+    if (!registerForm.username) {
       ElNotification({
         duration: 2000,
         title: 'warning',
-        message: '邮箱不能为空',
+        message: '用户名不能为空',
         type: 'warning',
         showClose: false,
       });
@@ -146,9 +146,10 @@
     }
 
     const params = {
+      account: registerForm.account,
       username: registerForm.username,
       password: registerForm.password,
-      mailbox: registerForm.mailbox,
+      
     };
 
     try {

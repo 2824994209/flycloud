@@ -1,5 +1,5 @@
 <template>
-	<MainLayout>
+	<MainLayout @update="handleUpdate">
 		<div class="main_header">
 			<span class="header-title">personal</span>
 			<div class="header_left">
@@ -181,13 +181,20 @@
 </template>
 <script setup>
 import MainLayout from '@/layouts/MainLayout.vue';
-import {ref } from 'vue'
+import {ref  } from 'vue'
 import { ArrowRight } from '@element-plus/icons-vue'
 import { ElNotification } from 'element-plus'
 // import { ElNotification } from 'element-plus';
 // import UploadFile from '@/util/UploadFile.vue';
 // import HelloWorld from '@/components/HelloWorld.vue';
 
+const receivedData = ref('');
+
+const handleUpdate = (data) => {
+  //处理搜索框传过来的数据
+  receivedData.value = data;
+  console.log("接收到的数据："+receivedData.value)
+};
 //数据存放
 const tableData = ref([
   {
@@ -245,7 +252,6 @@ const handleBreadcrumbClick = (item) => {
   // 截取到该索引为止的面包屑
   breadcrumbList.value = breadcrumbList.value.slice(0, index + 1);
 };
-
 //对比文件最后修改的时间
 const currentTimestamp = Date.now()
 function calculateTimeElapsed(modifiedTimestamp) {
@@ -285,6 +291,7 @@ const open1 = (row) => {
     plain: true,
   })
 };
+
 </script>
 
 <style >

@@ -12,6 +12,8 @@ import BasicSetting from '@/page/BasicSetting.vue';
 import SystemExplain from '@/admin_page/SystemExplain.vue';
 import UserManage from '@/admin_page/UserManage.vue';
 import adminBasicSetting from '@/admin_page/BasicSetting.vue';
+import UserShare from '@/page/UserShare.vue';
+import HistoryDate from '@/page/HistoryDate.vue';
 
 const routes = [
   { path: '/', component: PageDashboard, meta: { requiresAuth: true } },
@@ -23,6 +25,8 @@ const routes = [
   { path: '/register', component: RegisterPage },
   { path: '/user/personal', component: PageDashboard, },
   { path: '/user/setting', component: BasicSetting,  },
+  { path: '/user/share', component: UserShare, },
+  { path: '/user/date', component: HistoryDate, },
 ];
 
 const router = createRouter({
@@ -34,7 +38,7 @@ const { cookies } = useCookies();
 // 全局导航守卫
 router.beforeEach((to, from, next) => {
   const isAuthenticated = cookies.get('az'); // 检查 cookie 中的 token
-  console.log(isAuthenticated)
+  // console.log(isAuthenticated)
 
   if (to.matched.some(record => record.meta.requiresAuth) && !isAuthenticated) {
     next({ name: 'LoginPage' });
