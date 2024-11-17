@@ -40,128 +40,116 @@
     </div>
     </template>
   <script setup>
-  import {
-    Key,
-    User,
-  } from '@element-plus/icons-vue'
-  </script>
-  <script>
+  import { ref, reactive, watch } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { ElNotification } from 'element-plus';
+  import { Key, User } from '@element-plus/icons-vue';
   import axiosInstance from 'axios';
-  
-  export default {
-    data() {
-      return {
-        showPopup: false, // 控制弹窗显示
-        popupMessage: '',
-        isProcessing: false,
-        loginForm: {
-          username: '',
-          password: ''
-        }
-      }
-    },
-    methods: {
-      async submitRegister() {
-        console.log('点击了注册,', this.loginForm);
-  
-        // 防抖
-        if (this.isProcessing) {
-          return;
-        }
-        this.isProcessing = true;
-        this.$router.push('/register');
-      },
-      // 前台判断输入框是否为空
-      async submitLogin() { // 确保方法声明为 async
-        console.log('点击了登录,', this.loginForm);
-  
-        // 防抖
-        if (this.isProcessing) {
-          return;
-        }
-        this.isProcessing = true; // 设置处理标志
-  
-        // 验证输入
-        if (!this.loginForm.username) {
-          // this.popupMessage = "账号不能为空";
-          // this.showPopup = true;
-          this.$notify.warning({
-              duration: 2000,
-              title: 'warning',
-              message: '账号不能为空',
-              showClose: false
-            });
-          this.isProcessing = false;
-          return;
-        }
-        if (!this.loginForm.password) {
-          // this.popupMessage = "密码不能为空";
-          // this.showPopup = true;
-          this.$notify.warning({
-              duration: 2000,
-              title: 'warning',
-              message: '密码不能为空',
-              showClose: false
-            });
-          this.isProcessing = false;
-          return;
-        }
-  
-        // 登录的post请求
-        const params = {
-          username: this.loginForm.username,
-          password: this.loginForm.password
-        };
-  
-        try {
-          const res = await axiosInstance.post(`${this.$backendAddress}/login`, params);
-          console.log('res', res);
-          if (res.status === 200) {
-            console.log('登录成功', res.data);
-            // 存储 token
-            const token = res.data.token;
-            // localStorage.setItem('Authorization', token);
-            this.$cookies.set('az', token, '1d')
-            // 跳转到 /qifei 页面
-            console.log("/qifei/platform")
-            this.$router.push('/qifei/platform'); // 修改为你实际需要的路径
-            this.$notify.success({
-              duration: 2000,
-              title: 'success',
-              message: '登入成功',
-              showClose: false
-            });
-          } 
-        } catch (error) {
-          console.error('请求错误', error);
-          this.$notify.error({
-              duration: 2000,
-              title: 'error',
-              message: '登入失败',
-              showClose: false
-            });
-          // this.popupMessage = "请求错误: " + error.message;
-          // this.showPopup = true;
-        } finally {
-          this.isProcessing = false;
-        }
-      }
-    },
-    watch: {
-      showPopup(newVal) {
-        if (newVal) {
-          setTimeout(() => {
-            this.showPopup = false;
-          }, 1500);
-        } else {
-          this.$el.querySelector('.popup').classList.add('hide');
-          setTimeout(() => {
-            this.showPopup = false;
-          }, 1500);
-        }
-      }
-    },
+  import { useCookies } from 'vue3-cookies';
+
+  const router = useRouter();
+  const { cookies } = useCookies();
+
+  const showPopup = ref(false);
+  const popupMessage = ref('');
+  const isProcessing = ref(false);
+  const loginForm = reactive({
+    username: '',
+    password: ''
+  });
+
+  const submitRegister = () => {
+    console.log('点击了注册,', loginForm);
+
+    if (isProcessing.value) {
+      return;
+    }
+    isProcessing.value = true;
+    router.push('/register');
   };
+
+  const submitLogin = async () => {
+    console.log('点击了登录,', loginForm);
+
+    if (isProcessing.value) {
+      return;
+    }
+    isProcessing.value = true;
+
+    if (!loginForm.username) {
+      ElNotification({
+        duration: 2000,
+        title: 'warning',
+        message: '账号不能为空',
+        type: 'warning',
+        showClose: false
+      });
+      isProcessing.value = false;
+      return;
+    }
+    if (!loginForm.password) {
+      ElNotification({
+        duration: 2000,
+        title: 'warning',
+        message: '密码不能为空',
+        type: 'warning',
+        showClose: false
+      });
+      isProcessing.value = false;
+      return;
+    }
+
+    const params = {
+      username: loginForm.username,
+      password: loginForm.password
+    };
+
+    try {
+      const res = await axiosInstance.post(`${this.$backendAddress}/login`, params);
+      console.log('res', res);
+      if (res.status === 200) {
+        console.log('登录成功', res.data);
+        const token = res.data.token;
+        cookies.set('az', token, '1d');
+        if(res.data.role === 'admin'){
+          router.push('/admin/system');
+        }else{
+          router.push('/user/personal');
+        }
+        ElNotification({
+          duration: 2000,
+          title: 'success',
+          message: '登入成功',
+          type: 'success',
+          showClose: false
+        });
+      }
+    } catch (error) {
+      console.error('请求错误', error);
+      ElNotification({
+        duration: 2000,
+        title: 'error',
+        message: '登入失败',
+        type: 'error',
+        showClose: false
+      });
+    } finally {
+      isProcessing.value = false;
+    }
+  };
+
+  watch(showPopup, (newVal) => {
+    if (newVal) {
+      setTimeout(() => {
+        showPopup.value = false;
+      }, 1500);
+    } else {
+      document.querySelector('.popup').classList.add('hide');
+      setTimeout(() => {
+        showPopup.value = false;
+      }, 1500);
+    }
+  });
   </script>
   
   <style scoped>

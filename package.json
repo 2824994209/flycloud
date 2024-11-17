@@ -15,7 +15,8 @@
     "echarts": "^5.5.1",
     "element-plus": "^2.8.7",
     "vue": "^3.2.13",
-    "vue-router": "^4.4.5"
+    "vue-router": "^4.4.5",
+    "vue3-cookies": "^1.0.6"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",

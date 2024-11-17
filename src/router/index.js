@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { useCookies } from 'vue3-cookies';
 // import MainLayout from '@/layouts/MainLayout.vue';
 import PageDashboard from '@/page/DashboardPage.vue';
 import LoginPage from '@/login/LoginPage.vue';
@@ -13,20 +14,33 @@ import UserManage from '@/admin_page/UserManage.vue';
 import adminBasicSetting from '@/admin_page/BasicSetting.vue';
 
 const routes = [
-  { path: '/', component: PageDashboard },
-  { path: '/admin/system', component: SystemExplain },
-  { path: '/admin/user', component: UserManage },
-  { path: '/admin/basic', component: adminBasicSetting },
-  { path: '/ces', component: HelloWorld },
-  { path: '/login', component: LoginPage },
+  { path: '/', component: PageDashboard, meta: { requiresAuth: true } },
+  { path: '/admin/system', component: SystemExplain,  },
+  { path: '/admin/user', component: UserManage,  },
+  { path: '/admin/basic', component: adminBasicSetting, },
+  { path: '/ces', component: HelloWorld, meta: { requiresAuth: true } },
+  { path: '/login', name: 'LoginPage', component: LoginPage },
   { path: '/register', component: RegisterPage },
-  { path: '/user/personal', component: PageDashboard },
-  { path: '/user/setting', component: BasicSetting },
+  { path: '/user/personal', component: PageDashboard, },
+  { path: '/user/setting', component: BasicSetting,  },
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
 });
+const { cookies } = useCookies();
 
+// 全局导航守卫
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = cookies.get('az'); // 检查 cookie 中的 token
+  console.log(isAuthenticated)
+
+  if (to.matched.some(record => record.meta.requiresAuth) && !isAuthenticated) {
+    next({ name: 'LoginPage' });
+  } else {
+    // 否则，允许进入路由
+    next();
+  }
+});
 export default router;

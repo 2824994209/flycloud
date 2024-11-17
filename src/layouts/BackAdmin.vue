@@ -3,7 +3,7 @@
     <el-container>
       <el-header class="header">
         <div class="title">flycloudisk 管理</div>
-        <el-button class="logout-button" @click="logout">登出</el-button>
+        <el-button class="logout-button" @click="logout" type="info">登出</el-button>
       </el-header>
       <el-container>
         <el-aside class="aside" width="201px">
@@ -51,11 +51,14 @@
 </template>
 <script setup>
 import { useRouter } from 'vue-router';
+import { useCookies } from 'vue3-cookies';
 const router = useRouter();
+const { cookies } = useCookies();
 const logout = () => {
   console.log('登出');
   // 在这里添加登出逻辑
   router.push('/login')
+  cookies.remove('az');
 };
 </script>
 <style scoped>

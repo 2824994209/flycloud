@@ -5,6 +5,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 import 'element-plus/dist/index.css';
 import router from './router';
 import * as echarts from 'echarts'
+import VueCookies from 'vue3-cookies'
 const app = createApp(App);
 
 const debounce = (fn, delay) => {
@@ -31,5 +32,7 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 }
 app.use(router);
 app.use(ElementPlus);
-app.config.globalProperties.$echarts = echarts
+app.config.globalProperties.$cookies = VueCookies;
+app.config.globalProperties.$echarts = echarts;
+
 app.mount('#app');
