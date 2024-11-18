@@ -1,7 +1,7 @@
 <template>
     <BackAdmin>
         <div class="setting-item">
-            是否允许新用户注册
+            关闭新用户注册
             <el-switch v-model="register" />
         </div>
         <div class="setting-item">
@@ -16,12 +16,19 @@
 <script setup>
 import BackAdmin from '@/layouts/BackAdmin.vue'
 import { ref,onMounted } from 'vue'
-const register = ref(false)
-const capacity = ref(2048)
+import { ElNotification } from 'element-plus'
+const register = ref(localStorage.getItem("register") === "true")
+const capacity = ref(localStorage.getItem("capacity") || 2048)
 const save = () => {
     console.log(register.value,capacity.value)
     localStorage.setItem("register",register.value)
     localStorage.setItem("capacity",capacity.value)
+    ElNotification({
+        duration: 2000,
+        title: 'success',
+        message: '保存成功',
+        type: 'success',
+    })
 }
 onMounted(() => {
     console.log("ces")
