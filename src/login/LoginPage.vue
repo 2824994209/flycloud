@@ -1,7 +1,7 @@
 <template style="height: 100vh;">
     <div>
       <!-- 使用 flex 布局整个页面 -->
-      <div style="position: relative; z-index: 1;">
+      <div style="position: relative; z-index: 2;">
         <el-container style="display: flex;">
           <el-main style="flex: 1; display: flex; justify-content: center; align-items: center; text-align: center;">
             <div class="el-input-w" style="z-index: 999; width: 500px; ">
@@ -27,22 +27,23 @@
           </el-main>
         </el-container>
       </div>
+      <!-- 星星效果容器 -->
+      <LittleStar style="z-index: 1;"></LittleStar>
       <!-- 设置section为背景 -->
       <section class="banner-brand__wrapper" style=" z-index: 0; position: absolute; top: 0; left: 0; width: 100%; height: 100vh; background: url('/login.jpg') center center / cover no-repeat;">
         <div class="banner-brand__content">
-          <!-- 其他内容 -->
+
         </div>
       </section>
       <!-- 弹出窗口，如果有 -->
-      <div v-if="showPopup" class="popup">
-        {{ popupMessage }}
-      </div>
+
     </div>
     </template>
   <script setup>
-  import { ref, reactive, watch } from 'vue';
+  import { ref, reactive, watch, onMounted } from 'vue';
   import { useRouter } from 'vue-router';
   import { ElNotification } from 'element-plus';
+  import LittleStar from '@/util/LittleStar.vue';
   import { Key, User } from '@element-plus/icons-vue';
   import axiosInstance from 'axios';
   import { useCookies } from 'vue3-cookies';
@@ -51,7 +52,6 @@
   const { cookies } = useCookies();
 
   const showPopup = ref(false);
-  const popupMessage = ref('');
   const isProcessing = ref(false);
   const loginForm = reactive({
     username: '',
@@ -149,6 +149,10 @@
         showPopup.value = false;
       }, 1500);
     }
+  });
+
+  onMounted(() => {
+    console.log('onMounted');
   });
   </script>
   
@@ -258,6 +262,38 @@
     
     .db_button{
       margin-top: 30px;
+    }
+
+    .meteor-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1000;
+      /* background-color: #000; */
+    }
+
+    .meteor {
+      position: absolute;
+      width: 2px;
+      height: 100px;
+      background-color: #000;
+      /* background: linear-gradient(to bottom, rgba(240, 5, 5, 0.8), transparent); */
+      animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(-100px) translateX(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) translateX(100px);
+        opacity: 0;
+      }
     }
   </style>
   

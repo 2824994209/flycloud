@@ -1,7 +1,7 @@
 <template style="height: 100vh;">
     <div>
       <!-- 使用 flex 布局整个页面 -->
-      <div style="position: relative; z-index: 1;">
+      <div style="position: relative; z-index: 2;">
         <el-container style="display: flex;">
           <el-main style="flex: 1; display: flex; justify-content: center; align-items: center; text-align: center;margin-top: 60px;">
             <div class="el-input-w" style="z-index: 999; width: 500px; ">
@@ -35,7 +35,7 @@
                 <!-- 确认密码输入框 -->
                 <el-input
                     v-model="confirmPassword"
-                    style="width: 300px; margin-bottom: 30px;"
+                    style="width: 300px; margin-bottom: 70px;"
                     type="password"
                     placeholder="确认密码"
                     show-password
@@ -54,13 +54,13 @@
           <!-- 其他内容 -->
         </div>
       </section>
-      <!-- 弹出窗口，如果有 -->
-      <div v-if="showPopup" class="popup">
-        {{ popupMessage }}
-      </div>
+      <!-- 星星效果容器 -->
+      <LittleStar style="z-index: 1;"></LittleStar>
+
     </div>
     </template>
   <script setup>
+  import LittleStar from '@/util/LittleStar.vue';
   import {
     User,
   } from '@element-plus/icons-vue'
@@ -70,7 +70,6 @@
   import { ElNotification } from 'element-plus';
 
   const showPopup = ref(false);
-  const popupMessage = ref('');
   const isProcessing = ref(false);
   const confirmPassword = ref('');
   const registerForm = reactive({
@@ -80,7 +79,6 @@
   });
 
   const router = useRouter();
-
   const submitLogin = async () => {
     console.log('点击了注册,', registerForm);
 

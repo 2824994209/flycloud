@@ -14,7 +14,7 @@ import UserManage from '@/admin_page/UserManage.vue';
 import adminBasicSetting from '@/admin_page/BasicSetting.vue';
 import UserShare from '@/page/UserShare.vue';
 import HistoryDate from '@/page/HistoryDate.vue';
-
+import LittleStar from '@/util/LittleStar.vue';
 const routes = [
   { path: '/', component: PageDashboard, meta: { requiresAuth: true } },
   { path: '/admin/system', component: SystemExplain,  },
@@ -27,6 +27,7 @@ const routes = [
   { path: '/user/setting', component: BasicSetting,  },
   { path: '/user/share', component: UserShare, },
   { path: '/user/date', component: HistoryDate, },
+  { path: '/user/star', component: LittleStar, },
 ];
 
 const router = createRouter({

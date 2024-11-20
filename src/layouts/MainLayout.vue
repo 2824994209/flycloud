@@ -113,7 +113,6 @@
     console.log("传递前"+search_input1.value)
     emit('update', search_input1.value);
     // console.log(search_input.value)
-
   }
   const toggleIcon = () => {
     isCollapse.value = !isCollapse.value;

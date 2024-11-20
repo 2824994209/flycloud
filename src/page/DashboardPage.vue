@@ -130,6 +130,7 @@
 														<el-icon>
 															<Share />
 														</el-icon>
+														<!-- 分享 -->
 														Share
 													</div>
 
@@ -137,18 +138,20 @@
 											</el-dropdown-item>
 											<el-dropdown-item>
 												<template #default>
-													<div class="xlcdList">
+													<div class="xlcdList" @click="dropdownDownload(row)">
 														<el-icon>
 															<Download />
 														</el-icon>
+														<a target="_blank" :href="donwloadUrl"></a>
+														<!-- 下载 -->
 														Download
 													</div>
 
 												</template>
 											</el-dropdown-item>
 											<el-dropdown-item>
-												<template #default>
-													<div class="xlcdList">
+												<template #default >
+													<div class="xlcdList" @click="openDelete(row)">
 														<el-icon>
 															<Delete />
 														</el-icon>
@@ -178,12 +181,32 @@
 			</el-table>
 		</div>
 	</MainLayout>
+	<el-dialog
+    v-model="dropdownDelete"
+    title="删除文件"
+    width="500"
+    align-center
+  >
+    <!-- <div class='input-container'>
+      <input  type='text' />
+    </div> -->
+    是否删除{{dropdownSelecteDelete.name}}
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="dropdownDelete = false" color="#626aef" plain>取消</el-button>
+        <el-button type="primary" @click="deleteSuccessfully" color="#626aef" >
+          确定
+        </el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 <script setup>
 import MainLayout from '@/layouts/MainLayout.vue';
 import {ref  } from 'vue'
 import { ArrowRight } from '@element-plus/icons-vue'
 import { ElNotification } from 'element-plus'
+import { Download } from '@element-plus/icons';
 // import { ElNotification } from 'element-plus';
 // import UploadFile from '@/util/UploadFile.vue';
 // import HelloWorld from '@/components/HelloWorld.vue';
@@ -292,6 +315,30 @@ const open1 = (row) => {
   })
 };
 
+// dropdown
+// 下载
+const donwloadUrl = ref('')
+const dropdownDownload = (row) =>{
+	console.log(row)
+
+	// donwloadUrl.value = row.url
+	donwloadUrl.value = 'https://www.baidu.com'
+	window.open(donwloadUrl.value, '_blank');
+
+}
+// 删除
+
+const dropdownSelecteDelete = ref()
+const dropdownDelete = ref(false)
+const openDelete = (row) =>{
+  dropdownDelete.value = true
+  console.log(row)
+  dropdownSelecteDelete.value = row
+}
+const deleteSuccessfully = ()=>{
+  dropdownDelete.value = false
+  //请求
+}
 </script>
 
 <style >
