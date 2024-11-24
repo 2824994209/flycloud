@@ -9,5 +9,20 @@ module.exports = defineConfig({
         __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: JSON.stringify(false)
       })
     ]
+  },
+  devServer: {
+    proxy: {
+      '/api': {
+        target: 'https://ouvudspruesl.sealoshzh.site',
+        changeOrigin: true,
+        pathRewrite: { '^/api': '/api' },
+        onProxyReq: (proxyReq, req, res) => {
+          console.log('Proxying request:', req.url);
+        },
+        onProxyRes: (proxyRes, req, res) => {
+          console.log('Received response from target:', proxyRes.statusCode);
+        }
+      },
+    }
   }
 });

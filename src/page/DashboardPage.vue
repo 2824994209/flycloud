@@ -334,6 +334,7 @@ const openDelete = (row) =>{
   dropdownDelete.value = true
   console.log(row)
   dropdownSelecteDelete.value = row
+
 }
 const deleteSuccessfully = ()=>{
   dropdownDelete.value = false

@@ -9,7 +9,7 @@
               <div style="height: 230px">
                 
                 <p style="height: 10px;font-weight:bolder;">登入</p>
-                  <el-input v-model="loginForm.username" style="width: 300px;margin-bottom: -100px;;" placeholder="account" />
+                  <el-input v-model="loginForm.username" style="width: 300px;margin-bottom: -100px;;" placeholder="mail" />
                   <el-input
                       v-model="loginForm.password"
                       style="width: 300px;margin-bottom: 100px;"
@@ -47,6 +47,9 @@
   import { Key, User } from '@element-plus/icons-vue';
   import axiosInstance from 'axios';
   import { useCookies } from 'vue3-cookies';
+
+  import { inject } from 'vue';
+  const backendAddress = inject('backendAddress'); 
 
   const router = useRouter();
   const { cookies } = useCookies();
@@ -100,22 +103,26 @@
     }
 
     const params = {
-      username: loginForm.username,
+      email: loginForm.username,
       password: loginForm.password
     };
 
     try {
-      const res = await axiosInstance.post(`${this.$backendAddress}/login`, params);
-      console.log('res', res);
+      console.log('请求地址',backendAddress)
+      const res = await axiosInstance.post(`/api/v1/public/login`, params);
+      
       if (res.status === 200) {
         console.log('登录成功', res.data);
-        const token = res.data.token;
+        
+        const token = res.data.data.token;
+        console.log('token',token)
         cookies.set('az', token, '1d');
-        if(res.data.role === 'admin'){
-          router.push('/admin/system');
-        }else{
-          router.push('/user/personal');
-        }
+        router.push('/user/personal');
+        // if(res.data.role === 'admin'){
+        //   router.push('/admin/system');
+        // }else{
+        //   router.push('/user/personal');
+        // }
         ElNotification({
           duration: 2000,
           title: 'success',
@@ -153,6 +160,7 @@
 
   onMounted(() => {
     console.log('onMounted');
+
   });
   </script>
   

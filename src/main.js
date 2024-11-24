@@ -35,4 +35,7 @@ app.use(ElementPlus);
 app.config.globalProperties.$cookies = VueCookies;
 app.config.globalProperties.$echarts = echarts;
 
+app.provide('backendAddress', 'https://ouvudspruesl.sealoshzh.site');
+
+
 app.mount('#app');
