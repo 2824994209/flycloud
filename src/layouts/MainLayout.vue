@@ -87,7 +87,7 @@
           </el-aside>
           <el-main class="main">
             <!-- 插槽 切换页面 -->
-            <slot :searchValue="search_input1">
+            <slot :searchValue="search_input1" >
 
             </slot>
   
@@ -170,7 +170,7 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1),
                 0 1px 15px rgba(0, 0, 0, 0.2);
     background-color: #ffffff;
-    transition: width 1s ease;  /* 添加收起/展开动画 */
+    transition: width 4s ease;  /* 添加收起/展开动画 */
   }
   .content-container{
     width: 60%;

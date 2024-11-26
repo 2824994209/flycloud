@@ -141,7 +141,6 @@ const submitLogin = async () => {
     console.log('res', res);
     if (res.status === 200) {
       console.log('注册成功', res.data);
-      // router.push('/login');
       ElNotification({
         duration: 2000,
         title: 'success',
@@ -149,34 +148,8 @@ const submitLogin = async () => {
         type: 'success',
         showClose: false,
       });
-      try {
-        console.log('请求地址', backendAddress)
-        const aparams = {
-          email: registerForm.email,
-          password: registerForm.password,
-        }
-        const res = await axiosInstance.post(`/api/v1/public/login`, aparams);
-        console.log('res', res);
-        if (res.status === 200) {
-          router.push('/user/personal');
-          // if(res.data.role === 'admin'){
-          //   router.push('/admin/system');
-          // }else{
-          //   router.push('/user/personal');
-          // }
-        }
-      } catch (error) {
-        console.error('请求错误', error);
-        ElNotification({
-          duration: 2000,
-          title: 'error',
-          message: '登录失败',
-          type: 'error',
-          showClose: false,
-        });
-      } finally {
-        isProcessing.value = false;
-      }
+      //注册成功后跳转到登录页面
+      router.push('/login');
     }
   } catch (error) {
     console.error('请求错误', error);

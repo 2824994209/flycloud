@@ -73,28 +73,43 @@
 
     </div>
     <div class="shangc">
-      <el-breadcrumb :separator-icon="ArrowRight">
-
-        <el-breadcrumb-item v-for="(item, index) in breadcrumbList" :key="index" :to="item.to">
-          <span @click="handleBreadcrumbClick(item)">
-            {{ item.label }}
-          </span>
+      <el-breadcrumb separator="/">
+        <el-breadcrumb-item
+          class="breadcrumb-item"
+          @click="goToHome"
+        >
+          首页
+        </el-breadcrumb-item>
+        <el-breadcrumb-item
+          v-for="(item, index) in breadcrumbs"
+          :key="index"
+          @click="handleBreadcrumbClick(item)"
+          class="breadcrumb-item"
+        >
+          {{ item.name }}
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
-    <div style="">
-      <el-table :data="currentFolder" style="width: 100%;height: 500px;" :row-style="{ height: rowHeight + 'px' }">
+    <div ref="tableContainer" class="table-container">
+      <el-table :data="tableData" style="width: 100%; height: 500px;" :row-style="{ height: rowHeight + 'px' }">
         <el-table-column type="selection" width="55" />
         <el-table-column label="Name">
           <template #default="{ row }">
-            <a class="el-table-column-a" @click="openFolder(row)" href="#">{{ row.name }}</a>
+            <el-icon>
+              <component :is="row.type === 'folder' ? Folder : Document" />
+            </el-icon>
+            <a class="el-table-column-a" @click="openFolder(row)" href="#">{{ row.name || row.file_name }}</a>
           </template>
         </el-table-column>
-        <el-table-column property="size" label="Size" width="90" />
+        <el-table-column label="Size" width="90">
+          <template #default="{ row }">
+            <span v-if="row.type === 'file'">{{ formatFileSize(row.size) }}</span>
+          </template>
+        </el-table-column>
         <el-table-column label="Modified" width="130">
           <template #default="{ row }">
-            <el-tooltip class="item" :content="formatTimestamp(row.modified)" placement="top">
-              <span class="tooltip-text">{{ row.modifiedTimeElapsed }}</span>
+            <el-tooltip class="item" :content="formatTimestamp(row.UpdatedAt || row.updated_at)" placement="top">
+              <span class="tooltip-text">{{ calculateTimeElapsed(row.UpdatedAt || row.updated_at) }}</span>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -172,12 +187,11 @@
           </template>
         </el-table-column>
       </el-table>
+      <!-- <div v-if="tableData.length === 0" class="no-data-message">No Data</div> -->
     </div>
   </MainLayout>
   <el-dialog v-model="dropdownDelete" title="删除文件" width="500" align-center>
-    <!-- <div class='input-container'>
-      <input  type='text' />
-    </div> -->
+
     是否删除{{ dropdownSelecteDelete.name }}
     <template #footer>
       <div class="dialog-footer">
@@ -192,11 +206,11 @@
 <script setup>
 import MainLayout from '@/layouts/MainLayout.vue';
 import { ref, onMounted, inject } from 'vue'
-import { ArrowRight } from '@element-plus/icons-vue'
 import { ElNotification } from 'element-plus'
 import { Download } from '@element-plus/icons';
 import axiosInstance from 'axios';
 import { useCookies } from 'vue3-cookies';
+import { Folder, Document } from '@element-plus/icons-vue'; // 引入图标
 const { cookies } = useCookies();
 const backendAddress = inject('backendAddress');
 // import { ElNotification } from 'element-plus';
@@ -204,7 +218,40 @@ const backendAddress = inject('backendAddress');
 // import HelloWorld from '@/components/HelloWorld.vue';
 
 const receivedData = ref('');
+function calculateTimeElapsed(modifiedTimestamp) {
+  const currentTimestamp = Date.now();
+  const diff = currentTimestamp - new Date(modifiedTimestamp).getTime();
+  if (diff < 1000 * 60) {
+    const seconds = Math.floor(diff / 1000);
+    return `${seconds} second${seconds !== 1 ? 's' : ''} ago`;
+  }
+  if (diff < 1000 * 60 * 60) {
+    const minutes = Math.floor(diff / (1000 * 60));
+    return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
+  }
+  if (diff < 1000 * 60 * 60 * 24) {
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+  }
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  return `${days} day${days !== 1 ? 's' : ''} ago`;
+}
 
+const formatTimestamp = (timestamp) => {
+  const date = new Date(timestamp);
+  return date.toLocaleString();
+};
+function formatFileSize(size) {
+  if (size < 1024) {
+    return `${size} B`;
+  } else if (size < 1024 * 1024) {
+    return `${(size / 1024).toFixed(2)} KB`;
+  } else if (size < 1024 * 1024 * 1024) {
+    return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+  } else {
+    return `${(size / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+  }
+}
 const handleUpdate = (data) => {
   //处理搜索框传过来的数据
   receivedData.value = data;
@@ -213,88 +260,8 @@ const handleUpdate = (data) => {
 
 //数据存放
 const isEmpty = ref(false);
-const tableData = ref([
-  // {
-  //   name: 'Folder 1',
-  //   type: 'folder',
-  //   modified: '1730893521000',
-  // },
-  // {
-  //   name: 'Folder 2',
-  //   type: 'folder',
-  //   modified: '1730893521000',
-  // },
-  // {
-  //   name: 'File 2',
-  //   type: 'file',
-  //   size: '10GB',
-  //   modified: '1730893521000',
-  // },
-])
-// const folderData = ref([
-//   {
-//     name: 'test1',
-//     type: 'folder',
-//     modified: '1730893521000',
-//   },
-//   {
-//     name: 'test2',
-//     type: 'folder',
-//     modified: '1730893521000',
-//   },
-//   {
-//     name: 'File 2',
-//     type: 'file',
-//     size: '10GB',
-//     modified: '1730893521000',
-//   },
-// ])
-
-const breadcrumbList = ref([
-  { label: '首页', to: '/user/personal' },
-])
-const currentFolder = ref(tableData.value); // 初始为根文件夹
-
-const openFolder = (folder) => {
-  console.log(folder.name)
-  if (folder.type == 'folder') {
-    currentFolder.value = 
-    breadcrumbList.value.push({ label: folder.name, to: `#${folder.name}`, });
-  }
-};
-const handleBreadcrumbClick = (item) => {
-  console.log(`Clicked on: ${item.label}`);
-  // 找到点击的面包屑项的索引
-  const index = breadcrumbList.value.findIndex(b => b.label === item.label);
-  // 截取到该索引为止的面包屑
-  breadcrumbList.value = breadcrumbList.value.slice(0, index + 1);
-};
-//对比文件最后修改的时间
-const currentTimestamp = Date.now()
-function calculateTimeElapsed(modifiedTimestamp) {
-  const diff = currentTimestamp - modifiedTimestamp;
-  if (diff < 1000 * 60) {
-    const seconds = Math.floor(diff / 1000);
-    return `${seconds} second ago`;
-  }
-  if (diff < 1000 * 60 * 60) {
-    const minutes = Math.floor(diff / (1000 * 60));
-    return `${minutes} minute ago`;
-  }
-  if (diff < 1000 * 60 * 60 * 24) {
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    return `${hours} hour ago`;
-  }
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  return `${days} day ago`;
-}
-tableData.value.forEach(item => {
-  item.modifiedTimeElapsed = calculateTimeElapsed(item.modified);
-})
-const formatTimestamp = (timestamp) => {
-  const date = new Date(parseInt(timestamp));
-  return date.toLocaleString();
-}
+const tableData = ref([]);
+const breadcrumbs = ref([]);
 
 const rowHeight = ref(30); // 默认行高
 const showMore = (row) => {
@@ -335,7 +302,7 @@ const deleteSuccessfully = () => {
 }
 const rootfolder = (backendAddress, token) => {
   try {
-    console.log('请求地址', backendAddress)
+    // console.log('', backendAddress)
     axiosInstance.get(`/api/v1/user/info`, {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -357,9 +324,9 @@ const rootfolder = (backendAddress, token) => {
     });
   }
 }
-const requestsRootfolder = (token) =>{
-  const rootfolderid = cookies.get('rootfolderid')
-  if(!rootfolderid){
+const requestsRootfolder = async (token) => {
+  const rootfolderid = cookies.get('rootfolderid');
+  if (!rootfolderid) {
     console.error('请求错误');
     ElNotification({
       duration: 2000,
@@ -368,22 +335,23 @@ const requestsRootfolder = (token) =>{
       type: 'error',
       showClose: false
     });
+    return;
   }
   try {
-    axiosInstance.get(`/api/v1/fs/folder/${rootfolderid}`, {
+    const res = await axiosInstance.get(`/api/v1/fs/folder/${rootfolderid}`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
-    }).then(res => {
-      if (res.status === 200) {
-        //初始根目录数据
-        tableData.value = res.data.data;
-        console.log(tableData.value)
-        //空目录
-        emptytableData()
-        
-      }
-    })
+    });
+    if (res.status === 200) {
+      const data = res.data.data;
+      // 合并文件和文件夹数据
+      tableData.value = [
+        ...(data.folders || []).map(folder => ({ ...folder, type: 'folder' })),
+        ...(data.files || []).map(file => ({ ...file, type: 'file' }))
+      ];
+      isEmpty.value = tableData.value.length === 0;
+    }
   } catch (error) {
     console.error('请求错误', error);
     ElNotification({
@@ -394,14 +362,61 @@ const requestsRootfolder = (token) =>{
       showClose: false
     });
   }
-}
-//根目录内容为空
-const emptytableData = () =>{
-  if(tableData.value.total.files == 0&&tableData.value.total.folders == 0){
-    isEmpty.value = true
-  }
+};
 
-}
+const fetchFolderData = async (folderId) => {
+  try {
+    const res = await axiosInstance.get(`/api/v1/fs/folder/${folderId}`, {
+      headers: {
+        'Authorization': `Bearer ${cookies.get('az')}`
+      }
+    });
+    if (res.status === 200) {
+      const data = res.data.data;
+      tableData.value = [
+        ...(data.folders || []).map(folder => ({
+          ...folder,
+          type: 'folder',
+          modifiedTimeElapsed: calculateTimeElapsed(folder.updated_at)
+        })),
+        ...(data.files || []).map(file => ({
+          ...file,
+          type: 'file',
+          modifiedTimeElapsed: calculateTimeElapsed(file.UpdatedAt)
+        }))
+      ];
+      breadcrumbs.value = data.breadcrumbs.filter(item => item.name !== '根目录');
+      isEmpty.value = tableData.value.length === 0;
+    }
+  } catch (error) {
+    console.error('请求错误', error);
+    ElNotification({
+      duration: 2000,
+      title: 'error',
+      message: '目录信息请求失败',
+      type: 'error',
+      showClose: false
+    });
+  }
+};
+
+const openFolder = (row) => {
+  if (row.type === 'folder') {
+    localStorage.setItem('currentFolderId', row.id);
+    fetchFolderData(row.id);
+  }
+};
+
+const handleBreadcrumbClick = (item) => {
+  localStorage.setItem('currentFolderId', item.id);
+  fetchFolderData(item.id);
+};
+
+const goToHome = () => {
+  const rootFolderId = cookies.get('rootfolderid');
+  localStorage.setItem('currentFolderId', rootFolderId);
+  fetchFolderData(rootFolderId);
+};
 
 onMounted(() => {
   console.log('DashboardPage')
@@ -412,10 +427,15 @@ onMounted(() => {
   rootfolder(backendAddress, token)
   //用rootfolderid请求根目录文件
   requestsRootfolder(token)
+  
+
+
 })
 </script>
 
 <style>
+
+
 .no-data-message {
   display: flex;
   justify-content: center;
@@ -615,4 +635,14 @@ onMounted(() => {
 .settings-button:hover {
   background-color: #e0e0e0;
 }
+.el-table-column-a{
+  padding-left: 10px;
+
+}
+
+.breadcrumb-item {
+  cursor: pointer;
+}
+
+
 </style>

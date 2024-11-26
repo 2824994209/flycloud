@@ -2,16 +2,15 @@
   <div>
     <el-upload
       class="upload-demo"
-      action="http://localhost:3000/upload"
+      :http-request="customRequest"
       :on-progress="handleProgress"
       :on-success="handleSuccess"
       :on-error="handleError"
       :show-file-list="false"
-      :before-upload="beforeUpload"
       multiple
       :file-list="[]"
     >
-    <slot></slot>
+      <slot></slot>
     </el-upload>
   </div>
 </template>
@@ -19,6 +18,10 @@
 <script>
 import { h, ref } from 'vue';
 import { ElNotification } from 'element-plus';
+import { useCookies } from 'vue3-cookies';
+import axios from 'axios';
+
+const { cookies } = useCookies();
 
 export default {
   setup() {
@@ -86,20 +89,36 @@ export default {
       });
     };
 
-    const beforeUpload = async (file) => {
-      console.log(`开始上传文件: ${file.name}`);
-      // 可以在这里添加异步验证逻辑
-      // 例如，检查文件类型或大小
-      return true; // 返回 true 以继续上传
-    };
+    const customRequest = async (options) => {
+      const { file, onProgress, onSuccess, onError } = options;
+      const currentFolderId = localStorage.getItem('currentFolderId');
+      const token = cookies.get('az');
 
-    
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder_id', currentFolderId);
+
+      try {
+        const response = await axios.post('/api/v1/fs/upload', formData, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            onProgress({ percent: percentCompleted });
+          },
+        });
+        onSuccess(response.data);
+      } catch (error) {
+        onError(error);
+      }
+    };
 
     return {
       handleProgress,
       handleSuccess,
       handleError,
-      beforeUpload,
+      customRequest,
     };
   },
 };
