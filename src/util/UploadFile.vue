@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { h, ref } from 'vue';
+import { h, ref,inject } from 'vue';
 import { ElNotification } from 'element-plus';
 import { useCookies } from 'vue3-cookies';
 import axios from 'axios';
@@ -25,6 +25,7 @@ const { cookies } = useCookies();
 
 export default {
   setup() {
+    const backendAddress = inject('backendAddress');
     const notifications = ref({});
 
     const handleProgress = async (event, file) => {
@@ -58,13 +59,9 @@ export default {
         progressBar.value = percentage;
       }
 
-      // 进度达到100%时关闭通知
-      if (percentage >= 100) {
-        notifications.value[file.uid].close();
-        delete notifications.value[file.uid];
-      }
-    };
 
+    };
+    const fetchFolderData = inject('fetchFolderData');
     const handleSuccess = async (response, file) => {
       console.log("上传成功", response);
       if (notifications.value[file.uid]) {
@@ -72,6 +69,9 @@ export default {
         delete notifications.value[file.uid];
       }
       // 可以在这里进行后续处理，例如更新状态
+      if (fetchFolderData) {
+      fetchFolderData();
+    }
     };
 
     const handleError = async (err, file) => {
@@ -91,15 +91,17 @@ export default {
 
     const customRequest = async (options) => {
       const { file, onProgress, onSuccess, onError } = options;
-      const currentFolderId = localStorage.getItem('currentFolderId');
+      // const currentFolderId = localStorage.getItem('currentFolderId');
+      const currentFolderId = cookies.get('currentFolderId');
       const token = cookies.get('az');
 
       const formData = new FormData();
       formData.append('file', file);
       formData.append('folder_id', currentFolderId);
 
+
       try {
-        const response = await axios.post('/api/v1/fs/upload', formData, {
+        const response = await axios.post(`${backendAddress}/api/v1/fs/upload`, formData, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },

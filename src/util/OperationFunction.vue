@@ -49,9 +49,16 @@
                 </div>
             </el-tooltip>
         </CreateFolder>
-
-
-
+        <!-- 退出登录 -->
+        <LogoutPage>
+            <el-tooltip class="box-item" content="logout 退出登录" placement="left">
+                <div class="dropdown-item">
+                    <el-icon size="23px">
+                        <Close />
+                    </el-icon>
+                </div>
+            </el-tooltip>
+        </LogoutPage>
     </div>
 </template>
 <script setup>
@@ -59,6 +66,7 @@ import { ref } from 'vue'
 import UploadFile from './UploadFile.vue';
 import CreateFile from './CreateFile.vue';
 import CreateFolder from './CreateFolder.vue';
+import LogoutPage from './LogoutPage.vue';
 
 const isDropdownVisible = ref(false);
 

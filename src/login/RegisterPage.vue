@@ -137,19 +137,27 @@ const submitLogin = async () => {
 
   try {
     console.log('请求地址', backendAddress)
-    const res = await axiosInstance.post(`/api/v1/public/register`, params);
+    const res = await axiosInstance.post(`${backendAddress}/api/v1/public/register`, params);
     console.log('res', res);
     if (res.status === 200) {
-      console.log('注册成功', res.data);
-      ElNotification({
-        duration: 2000,
-        title: 'success',
-        message: '注册成功',
-        type: 'success',
-        showClose: false,
-      });
-      //注册成功后跳转到登录页面
-      router.push('/login');
+      if(res.data.code === 200){
+        ElNotification({
+          duration: 2000,
+          title: 'success',
+          message: '注册成功',
+          type: 'success',
+          showClose: false,
+        });
+        router.push('/login');
+      }else{
+        ElNotification({
+          duration: 2000,
+          title: 'error',
+          message: '注册失败',
+          type: 'error',
+          showClose: false,
+        });
+      }
     }
   } catch (error) {
     console.error('请求错误', error);

@@ -95,12 +95,12 @@
         </el-container>
       </el-container>
     </div>
-    <OperationFunction />
+    <!-- <OperationFunction /> -->
   </template>
   
   <script setup>
   import { ref,defineEmits } from "vue";
-  import OperationFunction from "@/util/OperationFunction.vue";
+  // import OperationFunction from "@/util/OperationFunction.vue";
   // import DashboardPage from "@/page/DashboardPage.vue";
   // 从 localStorage 读取 isCollapse 的初始值
   const search_input = ref('')

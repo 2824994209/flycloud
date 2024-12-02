@@ -109,7 +109,7 @@
 
     try {
       console.log('请求地址',backendAddress)
-      const res = await axiosInstance.post(`/api/v1/public/login`, params);
+      const res = await axiosInstance.post(`${backendAddress}/api/v1/public/login`, params);
       
       if (res.status === 200) {
         console.log('登录成功', res.data);

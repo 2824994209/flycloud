@@ -190,9 +190,13 @@
       <!-- <div v-if="tableData.length === 0" class="no-data-message">No Data</div> -->
     </div>
   </MainLayout>
-  <el-dialog v-model="dropdownDelete" title="删除文件" width="500" align-center>
-
-    是否删除{{ dropdownSelecteDelete.name }}
+  <el-dialog 
+    v-model="dropdownDelete" 
+    :title="dropdownSelecteDelete?.type === 'folder' ? '删除文件夹' : '删除文件'" 
+    width="500" 
+    align-center
+  >
+    是否删除{{ dropdownSelecteDelete?.type === 'folder' ? dropdownSelecteDelete.name : dropdownSelecteDelete.file_name }}
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="dropdownDelete = false" color="#626aef" plain>取消</el-button>
@@ -202,10 +206,11 @@
       </div>
     </template>
   </el-dialog>
+  <OperationFunction />
 </template>
 <script setup>
 import MainLayout from '@/layouts/MainLayout.vue';
-import { ref, onMounted, inject } from 'vue'
+import { ref, onMounted, inject, provide } from 'vue'
 import { ElNotification } from 'element-plus'
 import { Download } from '@element-plus/icons';
 import axiosInstance from 'axios';
@@ -213,6 +218,7 @@ import { useCookies } from 'vue3-cookies';
 import { Folder, Document } from '@element-plus/icons-vue'; // 引入图标
 const { cookies } = useCookies();
 const backendAddress = inject('backendAddress');
+import OperationFunction from '@/util/OperationFunction.vue';
 // import { ElNotification } from 'element-plus';
 // import UploadFile from '@/util/UploadFile.vue';
 // import HelloWorld from '@/components/HelloWorld.vue';
@@ -241,6 +247,7 @@ const formatTimestamp = (timestamp) => {
   const date = new Date(timestamp);
   return date.toLocaleString();
 };
+
 function formatFileSize(size) {
   if (size < 1024) {
     return `${size} B`;
@@ -281,14 +288,23 @@ const open1 = (row) => {
 const donwloadUrl = ref('')
 const dropdownDownload = (row) => {
   console.log(row)
-
-  // donwloadUrl.value = row.url
-  donwloadUrl.value = 'https://www.baidu.com'
-  window.open(donwloadUrl.value, '_blank');
-
+  axiosInstance.get(`${backendAddress}/api/v1/file/download/`+row.id, {
+    headers: {
+      'Authorization': `Bearer ${token.value}`
+    }
+  }).then(response => {    
+    console.log(response)
+    // donwloadUrl.value = response.data;
+    // window.open(donwloadUrl.value, '_blank');
+  });
 }
+
 // 删除
-const dropdownSelecteDelete = ref()
+const dropdownSelecteDelete = ref({
+  type: '',
+  name: '',
+  file_name: ''
+});
 const dropdownDelete = ref(false)
 const openDelete = (row) => {
   dropdownDelete.value = true
@@ -296,21 +312,66 @@ const openDelete = (row) => {
   dropdownSelecteDelete.value = row
 
 }
+// 删除文件
+const token = ref(cookies.get('az'))
 const deleteSuccessfully = () => {
-  dropdownDelete.value = false
-
+  dropdownDelete.value = false;
+  axiosInstance.delete(`${backendAddress}/api/v1/fs/file/${dropdownSelecteDelete.value.id}`, {
+    headers: {
+      'Authorization': `Bearer ${token.value}`
+    }
+  })
+  .then(res => {
+    if (res.data.code === 200) {
+      //刷新
+      fetchFolderData(cookies.get('currentFolderId'),token.value)
+      ElNotification({
+        duration: 2000,
+        title: '',
+        message: '删除文件成功',
+        type: 'success',
+        showClose: false
+      });
+    }
+  })
+  .catch(error => {
+    console.log(error)
+    ElNotification({
+        duration: 2000,
+        title: '',
+        message: '删除文件失败',
+        type: 'error',
+        showClose: false
+      });
+  });
 }
-const rootfolder = (backendAddress, token) => {
+const rootfolderid = ref('')
+const rootfolder = (token) => {
   try {
-    // console.log('', backendAddress)
-    axiosInstance.get(`/api/v1/user/info`, {
+    console.log('请求地址', backendAddress)
+    console.log(`${backendAddress}/api/v1/user/info`)
+    console.log('token',token)
+    axiosInstance.get(`${backendAddress}/api/v1/user/info`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     }).then(res => {
       if (res.status === 200) {
-        const rootfolderid =  res.data.data.rootfolderid;
-        cookies.set('rootfolderid',rootfolderid,'1d')
+        if(res.data.code === 200){
+          rootfolderid.value =  res.data.data.rootfolderid;
+          cookies.set('rootfolderid',rootfolderid.value,'1d')
+          cookies.set('currentFolderId',rootfolderid.value,'1d')
+          requestsRootfolder(token)
+
+        }else{
+          ElNotification({
+            duration: 2000,
+            title: 'error',
+            message: res.data.message,
+            type: 'error',
+            showClose: false
+          });
+        }
       }
     })
   } catch (error) {
@@ -338,7 +399,8 @@ const requestsRootfolder = async (token) => {
     return;
   }
   try {
-    const res = await axiosInstance.get(`/api/v1/fs/folder/${rootfolderid}`, {
+    console.log("/api/v1/fs/folder/",token)
+    const res = await axiosInstance.get(`${backendAddress}/api/v1/fs/folder/${rootfolderid}`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -364,11 +426,17 @@ const requestsRootfolder = async (token) => {
   }
 };
 
-const fetchFolderData = async (folderId) => {
+//更新触发
+
+const upload = () =>{
+  fetchFolderData(cookies.get('currentFolderId'),token.value)
+}
+provide('fetchFolderData', upload);
+const fetchFolderData = async (folderId,token) => {
   try {
-    const res = await axiosInstance.get(`/api/v1/fs/folder/${folderId}`, {
+    const res = await axiosInstance.get(`${backendAddress}/api/v1/fs/folder/${folderId}`, {
       headers: {
-        'Authorization': `Bearer ${cookies.get('az')}`
+        'Authorization': `Bearer ${token}`
       }
     });
     if (res.status === 200) {
@@ -385,7 +453,8 @@ const fetchFolderData = async (folderId) => {
           modifiedTimeElapsed: calculateTimeElapsed(file.UpdatedAt)
         }))
       ];
-      breadcrumbs.value = data.breadcrumbs.filter(item => item.name !== '根目录');
+      // breadcrumbs.value = data.breadcrumbs.filter(item => item.name !== '根目录');
+      breadcrumbs.value = data.breadcrumbs
       isEmpty.value = tableData.value.length === 0;
     }
   } catch (error) {
@@ -402,20 +471,24 @@ const fetchFolderData = async (folderId) => {
 
 const openFolder = (row) => {
   if (row.type === 'folder') {
-    localStorage.setItem('currentFolderId', row.id);
-    fetchFolderData(row.id);
+    // localStorage.setItem('currentFolderId', row.id);
+    cookies.set('currentFolderId',row.id,'1d')
+    const token = cookies.get('az')
+    fetchFolderData(row.id,token);
   }
 };
 
 const handleBreadcrumbClick = (item) => {
   localStorage.setItem('currentFolderId', item.id);
-  fetchFolderData(item.id);
+  const token = cookies.get('az')
+  fetchFolderData(item.id,token);
 };
 
 const goToHome = () => {
   const rootFolderId = cookies.get('rootfolderid');
-  localStorage.setItem('currentFolderId', rootFolderId);
-  fetchFolderData(rootFolderId);
+  cookies.set('currentFolderId',rootFolderId,'1d')
+  const token = cookies.get('az')
+  fetchFolderData(rootFolderId,token);
 };
 
 onMounted(() => {
@@ -424,9 +497,9 @@ onMounted(() => {
   console.log('请求地址', backendAddress)
   const token = cookies.get('az')
   //请求获取rootfolderid,记入到cookie
-  rootfolder(backendAddress, token)
+  rootfolder(token)
   //用rootfolderid请求根目录文件
-  requestsRootfolder(token)
+  
   
 
 

@@ -23,11 +23,11 @@ const routes = [
   { path: '/ces', component: HelloWorld, meta: { requiresAuth: true } },
   { path: '/login', name: 'LoginPage', component: LoginPage },
   { path: '/register', component: RegisterPage },
-  { path: '/user/personal', component: PageDashboard, },
-  { path: '/user/setting', component: BasicSetting,  },
-  { path: '/user/share', component: UserShare, },
-  { path: '/user/date', component: HistoryDate, },
-  { path: '/user/star', component: LittleStar, },
+  { path: '/user/personal', component: PageDashboard, meta: { requiresAuth: true }},
+  { path: '/user/setting', component: BasicSetting, meta: { requiresAuth: true }},
+  { path: '/user/share', component: UserShare,meta: { requiresAuth: true } },
+  { path: '/user/date', component: HistoryDate,meta: { requiresAuth: true } },
+  { path: '/user/star', component: LittleStar, meta: { requiresAuth: true }},
 ];
 
 const router = createRouter({
