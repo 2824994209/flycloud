@@ -1,267 +1,168 @@
-<template style="height: 100vh;">
-  <div>
-    <!-- 使用 flex 布局整个页面 -->
-    <div style="position: relative; z-index: 2;">
-      <el-container style="display: flex;">
-        <el-main
-          style="flex: 1; display: flex; justify-content: center; align-items: center; text-align: center;margin-top: 60px;">
-          <div class="el-input-w" style="z-index: 999; width: 500px; position: relative; overflow: hidden;">
-            <div class="close-button" @click="handleClose">
-              <el-icon>
-                <Close />
-              </el-icon>
-            </div>
+<template>
+  <div class="register-page">
+    <div class="register-box">
+      <div class="title">注册</div>
+      <div class="close-icon" @click="handleClose">×</div>
+      
+      <el-form 
+        :model="registerForm" 
+        :rules="rules" 
+        ref="formRef" 
+        class="form-container"
+      >
+        <!-- 邮箱输入框 -->
+        <el-form-item prop="email">
+          <el-input 
+            v-model="registerForm.email" 
+            placeholder="邮箱"
+          />
+        </el-form-item>
 
-            <div
-              style="height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: center;;margin-top:10px">
-              <p style="font-weight: bolder; margin-bottom: 20px;margin-top: 20px;">注册</p>
+        <!-- 用户名输入框 -->
+        <el-form-item prop="username">
+          <el-input 
+            v-model="registerForm.username" 
+            placeholder="用户名"
+          />
+        </el-form-item>
 
-              <!-- 邮箱输入框 -->
-              <el-input v-model="registerForm.email" style="width: 300px; margin-bottom: 30px;margin-top:-50px"
-                placeholder="邮箱" />
+        <!-- 密码输入框 -->
+        <el-form-item prop="password">
+          <el-input 
+            v-model="registerForm.password" 
+            type="password" 
+            placeholder="密码"
+            show-password
+          />
+        </el-form-item>
 
-              <!-- 用户名输入框 -->
-              <el-input v-model="registerForm.username" style="width: 300px; margin-bottom: 30px;" placeholder="用户名" />
-              <!-- 密码输入框 -->
-              <el-input v-model="registerForm.password" style="width: 300px; margin-bottom: 30px;" type="password"
-                placeholder="密码 要求长度6-8位" show-password size="default" />
+        <!-- 确认密码输入框 -->
+        <el-form-item prop="confirmPassword">
+          <el-input 
+            v-model="registerForm.confirmPassword" 
+            type="password" 
+            placeholder="确认密码"
+            show-password
+          />
+        </el-form-item>
 
-              <!-- 确认密码输入框 -->
-              <el-input v-model="confirmPassword" style="width: 300px; margin-bottom: 70px;" type="password"
-                placeholder="确认密码" show-password size="default" />
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: -40px; min-width: 300px; width: 300px; margin-left: auto; margin-right: auto;margin-bottom: 10px;">
-                <el-input v-model="registerForm.captcha" style="width: 150px;margin-right: 30px;" placeholder="验证码" />
-                <el-button 
-                    :disabled="countdown > 0"
-                    @click="getCaptcha" 
-                    style="width: 100px;"
-                  >
-                    {{ countdown > 0 ? `${countdown}s` : '获取验证码' }}
-                  </el-button>
-              </div>
-            </div>
-            <el-button color="#626aef" type="success" :icon="User" round @click="submitLogin" size="large"
-              style="margin-top: 40px;">注册提交</el-button>
+        <!-- 验证码输入框和按钮 -->
+        <el-form-item prop="captcha">
+          <div class="captcha-container">
+            <el-input 
+              v-model="registerForm.captcha" 
+              placeholder="验证码"
+            />
+            <el-button 
+              :disabled="countdown > 0"
+              @click="getCaptcha"
+              class="captcha-btn"
+              plain
+              color="#626aef"
+            >
+              {{ countdown > 0 ? `${countdown}s` : '获取验证码' }}
+            </el-button>
           </div>
-        </el-main>
-      </el-container>
-    </div>
-    <!-- 设置section为背景 -->
-    <section class="banner-brand__wrapper"
-      style=" z-index: 0; position: absolute; top: 0; left: 0; width: 100%; height: 100vh; background: url('/login.jpg') center center / cover no-repeat;">
-      <div class="banner-brand__content">
-        <!-- 其他内容 -->
-      </div>
-    </section>
-    <!-- 星星效果容器 -->
-    <LittleStar style="z-index: 1;"></LittleStar>
+        </el-form-item>
 
+        <!-- 注册按钮 -->
+        <el-button 
+          type="primary" 
+          color="#626aef" 
+          class="submit-btn"
+          @click="submitRegister"
+        >
+          注册提交
+        </el-button>
+      </el-form>
+    </div>
   </div>
 </template>
+
 <script setup>
-import LittleStar from '@/util/LittleStar.vue';
-import {
-  User,
-  Close,
-} from '@element-plus/icons-vue'
-import { ref, reactive, watch, inject } from 'vue';
-import axiosInstance from 'axios';
-import { useRouter } from 'vue-router';
-import { ElNotification } from 'element-plus';
-const backendAddress = inject('backendAddress');
-const router = useRouter();
-const showPopup = ref(false);
-const isProcessing = ref(false);
-const confirmPassword = ref('');
+import { ref, reactive, inject } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElNotification } from 'element-plus'
+import axios from 'axios'
+
+const router = useRouter()
+const formRef = ref(null)
+const backendAddress = inject('backendAddress')
+const countdown = ref(0)
+
 const registerForm = reactive({
   email: '',
-  password: '',
   username: '',
-  captcha: '',
-});
-const countdown = ref(0);
-let timer = null;
+  password: '',
+  confirmPassword: '',
+  captcha: ''
+})
 
-const submitLogin = async () => {
-  console.log('点击了注册,', registerForm);
-
-  if (isProcessing.value) {
-    return;
-  }
-  isProcessing.value = true;
-
-  if (!registerForm.email) {
-    ElNotification({
-      duration: 2000,
-      title: 'warning',
-      message: '邮箱不能为空',
-      type: 'warning',
-      showClose: false,
-    });
-    isProcessing.value = false;
-    return;
-  }
-  if (!registerForm.username) {
-    ElNotification({
-      duration: 2000,
-      title: 'warning',
-      message: '用户名不能为空',
-      type: 'warning',
-      showClose: false,
-    });
-    isProcessing.value = false;
-    return;
-  }
-  if (!registerForm.password) {
-    ElNotification({
-      duration: 2000,
-      title: 'warning',
-      message: '密码不能为空',
-      type: 'warning',
-      showClose: false,
-    });
-    isProcessing.value = false;
-    return;
-  }
-  if (!confirmPassword.value) {
-    ElNotification({
-      duration: 2000,
-      title: 'warning',
-      message: '密码不能为空',
-      type: 'warning',
-      showClose: false,
-    });
-    isProcessing.value = false;
-    return;
-  }
-  if (registerForm.password !== confirmPassword.value) {
-    ElNotification({
-      duration: 2000,
-      title: 'warning',
-      message: '输入的密码不一样',
-      type: 'warning',
-      showClose: false,
-    });
-    isProcessing.value = false;
-    return;
-  }
-  if (registerForm.password.length < 6 || registerForm.password.length > 8) {
-    ElNotification({
-      duration: 2000,
-      title: 'warning',
-      message: '密码长度要求6-8位',
-      type: 'warning',
-      showClose: false,
-    });
-    isProcessing.value = false;
-    return;
-  }
-  if (!registerForm.captcha) {
-    ElNotification({
-      duration: 2000,
-      title: 'warning',
-      message: '验证码不能为空',
-      type: 'warning',
-      showClose: false,
-    });
-    isProcessing.value = false;
-    return;
-  }
-  const params = {
-    email: registerForm.email,
-    username: registerForm.username,
-    password: registerForm.password,
-    captcha: registerForm.captcha,
-  };
-
-
-  try {
-    console.log('请求地址', backendAddress)
-    const res = await axiosInstance.post(`${backendAddress}/api/v1/public/register`, params);
-    console.log('res', res);
-    if (res.status === 200) {
-      if (res.data.code === 200) {
-        ElNotification({
-          duration: 2000,
-          title: 'success',
-          message: '注册成功',
-          type: 'success',
-          showClose: false,
-        });
-        router.push('/login');
-      } else {
-        ElNotification({
-          duration: 2000,
-          title: 'error',
-          message: '注册失败',
-          type: 'error',
-          showClose: false,
-        });
-      }
+// 表单验证规则
+const rules = {
+  email: [
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
+    { 
+      pattern: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/, 
+      message: '请输入正确的邮箱格式', 
+      trigger: 'blur' 
     }
-  } catch (error) {
-    console.error('请求错误', error);
-    ElNotification({
-      duration: 2000,
-      title: 'error',
-      message: '注册失败',
-      type: 'error',
-      showClose: false,
-    });
-  } finally {
-    isProcessing.value = false;
-  }
-};
+  ],
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 2, max: 20, message: '用户名长度在2-20个字符之间', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, max: 8, message: '密码长度在6-8位之间', trigger: 'blur' }
+  ],
+  confirmPassword: [
+    { required: true, message: '请确认密码', trigger: 'blur' },
+    {
+      validator: (rule, value, callback) => {
+        if (value !== registerForm.password) {
+          callback(new Error('两次输入的密码不一致'));
+        } else {
+          callback();
+        }
+      },
+      trigger: ['blur', 'change']
+    }
+  ],
+  captcha: [
+    { required: true, message: '请输入验证码', trigger: 'blur' },
+    { min: 6, max: 6, message: '验证码长度为6位', trigger: 'blur' }
+  ]
+}
 
 const handleClose = () => {
-  router.push('/login');
-};
+  router.push('/login')
+}
 
-watch(showPopup, (newVal) => {
-  if (newVal) {
-    setTimeout(() => {
-      showPopup.value = false;
-    }, 1500);
-  } else {
-    document.querySelector('.popup').classList.add('hide');
-    setTimeout(() => {
-      showPopup.value = false;
-    }, 1500);
-  }
-});
-const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// 获取验证码
 const getCaptcha = async () => {
   if (!registerForm.email) {
     ElNotification({
       duration: 2000,
-      title: 'warning',
-      message: '请先输入邮箱',
-      type: 'warning',
+      title: 'error',
+      message: '请输入邮箱',
+      type: 'error',
       showClose: false,
-    });
-    return;
-  }else if(!regex.test(registerForm.email)){
-    ElNotification({
-      duration: 2000,
-      title: 'warning',
-      message: '邮箱格式错误',
-      type: 'warning',
-      showClose: false,
-    });
-    return;
+    })
+    return
   }
-      // 开始倒计时
-      countdown.value = 60;
-      timer = setInterval(() => {
-        countdown.value--;
-        if (countdown.value <= 0) {
-          clearInterval(timer);
+  countdown.value = 60
+      const timer = setInterval(() => {
+        if (countdown.value > 0) {
+          countdown.value--
+        } else {
+          clearInterval(timer)
         }
-      }, 1000);
+      }, 1000)
   // try {
-  //   const res = await axiosInstance.post(`${backendAddress}/123`, {
+  //   const res = await axios.post(`${backendAddress}/api/v1/user/captcha`, {
   //     email: registerForm.email
-  //   });
+  //   })
     
   //   if (res.data.code === 200) {
   //     ElNotification({
@@ -270,180 +171,203 @@ const getCaptcha = async () => {
   //       message: '验证码已发送',
   //       type: 'success',
   //       showClose: false,
-  //     });
-  //     // 开始倒计时
-  //     countdown.value = 60;
-  //     timer = setInterval(() => {
-  //       countdown.value--;
-  //       if (countdown.value <= 0) {
-  //         clearInterval(timer);
+  //     })
+      
+  //     countdown.value = 60
+  //     const timer = setInterval(() => {
+  //       if (countdown.value > 0) {
+  //         countdown.value--
+  //       } else {
+  //         clearInterval(timer)
   //       }
-  //     }, 1000);
+  //     }, 1000)
   //   }
   // } catch (error) {
-  //   console.error('获取验证码失败', error);
+  //   console.error('获取验证码失败:', error)
   //   ElNotification({
   //     duration: 2000,
   //     title: 'error',
   //     message: '获取验证码失败',
   //     type: 'error',
   //     showClose: false,
-  //   });
+  //   })
   // }
-};
+}
+
+// 提交注册
+const submitRegister = async () => {
+  // 表单验证
+  if (!registerForm.email || !registerForm.username || !registerForm.password || !registerForm.confirmPassword || !registerForm.captcha) {
+    ElNotification({
+      duration: 2000,
+      title: 'error',
+      message: '请填写完整信息',
+      type: 'error',
+      showClose: false,
+    })
+    return
+  }
+
+  if (registerForm.password !== registerForm.confirmPassword) {
+    ElNotification({
+      duration: 2000,
+      title: 'error',
+      message: '两次密码不一致',
+      type: 'error',
+      showClose: false,
+    })
+    return
+  }
+
+  if (registerForm.password.length < 6 || registerForm.password.length > 8) {
+    ElNotification({
+      duration: 2000,
+      title: 'error',
+      message: '密码长度必须在6-8位之间',
+      type: 'error',
+      showClose: false,
+    })
+    return
+  }
+
+  try {
+    const res = await axios.post(`${backendAddress}/api/v1/user/register`, {
+      email: registerForm.email,
+      username: registerForm.username,
+      password: registerForm.password,
+      captcha: registerForm.captcha
+    })
+
+    if (res.data.code === 200) {
+      ElNotification({
+        duration: 2000,
+        title: 'success',
+        message: '注册成功',
+        type: 'success',
+        showClose: false,
+      })
+      router.push('/login')
+    }
+  } catch (error) {
+    console.error('注册失败:', error)
+    ElNotification({
+      duration: 2000,
+      title: 'error',
+      message: '注册失败',
+      type: 'error',
+      showClose: false,
+    })
+  }
+}
 </script>
 
 <style scoped>
-.el-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+.register-page {
+  height: 100vh;
+  width: 100vw;
+  background-image: url('/public/login.jpg');
+  background-size: cover;
+  background-position: center;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.el-input-w {
+.register-box {
+  width: 500px;
+  height: 470px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
   border-radius: 30px;
-  background-color: rgba(255, 255, 255, 0.7);
-  box-shadow: 0 8px 16px rgba(5, 0, 0, 0.5);
-  backdrop-filter: blur(5px) brightness(110%) contrast(90%);
-  overflow: hidden;
   position: relative;
+  box-shadow: 0 8px 16px rgba(5, 0, 0, 0.5);
 }
 
-@keyframes slideDown {
-  from {
-    transform: translate(-50%, -100%);
-    /* 水平居中和从顶部开始 */
-  }
-
-  to {
-    transform: translate(-50%, 0);
-    /* 水平居中和垂直终点 */
-  }
-}
-
-@keyframes slideUp {
-  from {
-    transform: translate(-50%, 0);
-    /* 水平居中和垂直起点 */
-  }
-
-  to {
-    transform: translate(-50%, -100%);
-    /* 水平居中和向顶部结束 */
-  }
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  /* 保证内容垂直居中 */
-  justify-content: space-between;
-  /* 保证子元素之间的间距均匀分布 */
-  width: 100%;
-  /* 确保卡片头部占满整个宽度 */
-}
-
-.popup {
-  position: fixed;
-  top: 20%;
-  /* 将弹窗向屏幕的上方移动 */
-  left: 50%;
-  transform: translate(-50%, -50%);
-  /* 保持水平居中，稍微向上调整 */
-  background-color: #455A64;
-  /* 深色背景，与#D3DCE6形成对比 */
-  color: white;
+.title {
   text-align: center;
-  padding: 20px;
-  width: 300px;
-  /* 限制宽度 */
-  border-radius: 10px;
-  /* 圆角边框 */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  /* 添加阴影 */
-  z-index: 1000;
-  transform: translateY(-100%);
-  animation: slideDown 0.8s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+  font-size: 16px;
+  font-weight: bold;
+  margin: 30px 0;
 }
 
-.popup.hide {
-  /* 新增退出动画 */
-  animation: slideUp 0.8s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
-}
-
-.el-container {
-  padding: 0;
-  margin: 0;
-}
-
-.el-header,
-.el-footer {
-  background-color: #D3DCE6;
-  color: #333;
-  text-align: center;
-  line-height: 60px;
-  border-bottom: 1px solid #D3DCE6;
-}
-
-.el-aside {
-  background-color: #D3DCE6;
-  color: #333;
-  text-align: center;
-  line-height: 200px;
-}
-
-.el-main {
-  color: #333;
-  text-align: center;
-  line-height: 160px;
-
-}
-
-body>.el-container {
-  margin-bottom: 40px;
-}
-
-.el-container:nth-child(5) .el-aside,
-.el-container:nth-child(6) .el-aside {
-  line-height: 260px;
-}
-
-.el-container:nth-child(7) .el-aside {
-  line-height: 320px;
-}
-
-.db_button {
-  margin-top: 30px;
-}
-
-.close-button {
+.close-icon {
   position: absolute;
-  top: 30px;
-  right: 30px;
-  cursor: pointer;
-  width: 28px;
-  height: 28px;
+  top: 20px;
+  right: 20px;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   transition: all 0.3s ease;
-  color: #909399;
-  z-index: 1000;
+  cursor: pointer;
+  color: #666;
+  line-height: 1;
+  font-size: 18px;
+  padding-bottom: 3px;
+  padding-right: 2px;
+  padding-left: 2px;
 }
 
-.close-button:hover {
-  background-color: rgba(144, 147, 153, 0.2);
+.close-icon:hover {
+  background-color: rgba(0, 0, 0, 0.1);
   transform: rotate(90deg);
 }
 
-.close-button .el-icon {
-  font-size: 20px;
-  transition: all 0.3s ease;
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 23px;
+  margin: 0 100px;
+}
+
+:deep(.el-input__wrapper) {
+  border-radius: 10px !important;
+  box-shadow: none;
+  border: 1px solid #dcdfe6;
+}
+
+:deep(.el-form-item) {
+  margin-bottom: 0;
+}
+
+:deep(.el-form-item__error) {
+  padding-left: 15px;
+  margin-top: 2px;
+}
+
+.captcha-container {
+  display: flex;
+  gap: 10px;
+}
+
+.captcha-container .el-input {
+  flex: 1;
+}
+
+.captcha-btn {
+  width: 120px;
+  border-radius: 10px;
+
+}
+
+
+.submit-btn {
+  width: 100%;
+  height: 40px;
+  border-radius: 20px;
+  /* background-color: #626aef; */
+  margin-top: 15px;
+}
+
+/* 确保输入框宽度一致 */
+:deep(.el-input) {
+  width: 100%;
+}
+
+/* 输入框获得焦点时的样式 */
+:deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 0 0 1px #626aef !important;
 }
 </style>
