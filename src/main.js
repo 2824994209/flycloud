@@ -35,7 +35,8 @@ app.use(ElementPlus);
 app.config.globalProperties.$cookies = VueCookies;
 app.config.globalProperties.$echarts = echarts;
 
-app.provide('backendAddress', 'https://ouvudspruesl.sealoshzh.site');
+// app.provide('backendAddress', 'https://ouvudspruesl.sealoshzh.site');
+app.provide('backendAddress', 'http://192.168.11.27:8080');
 
 
 app.mount('#app');

@@ -5,13 +5,18 @@
       <el-container style="display: flex;">
         <el-main
           style="flex: 1; display: flex; justify-content: center; align-items: center; text-align: center;margin-top: 60px;">
-          <div class="el-input-w" style="z-index: 999; width: 500px; ">
+          <div class="el-input-w" style="z-index: 999; width: 500px; position: relative; overflow: hidden;">
+            <div class="close-button" @click="handleClose">
+              <el-icon>
+                <Close />
+              </el-icon>
+            </div>
 
             <div
-              style="height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-              <p style="font-weight: bolder; margin-bottom: 20px;margin-top: 50px;">注册</p>
+              style="height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: center;;margin-top:10px">
+              <p style="font-weight: bolder; margin-bottom: 20px;margin-top: 20px;">注册</p>
 
-              <!-- 用户名输入框 -->
+              <!-- 邮箱输入框 -->
               <el-input v-model="registerForm.email" style="width: 300px; margin-bottom: 30px;margin-top:-50px"
                 placeholder="邮箱" />
 
@@ -19,14 +24,24 @@
               <el-input v-model="registerForm.username" style="width: 300px; margin-bottom: 30px;" placeholder="用户名" />
               <!-- 密码输入框 -->
               <el-input v-model="registerForm.password" style="width: 300px; margin-bottom: 30px;" type="password"
-                placeholder="密码" show-password size="default" />
+                placeholder="密码 要求长度6-8位" show-password size="default" />
 
               <!-- 确认密码输入框 -->
               <el-input v-model="confirmPassword" style="width: 300px; margin-bottom: 70px;" type="password"
-                placeholder="确认密码" show-password size="default" @keyup.enter="submitLogin" />
+                placeholder="确认密码" show-password size="default" />
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: -40px; min-width: 300px; width: 300px; margin-left: auto; margin-right: auto;margin-bottom: 10px;">
+                <el-input v-model="registerForm.captcha" style="width: 150px;margin-right: 30px;" placeholder="验证码" />
+                <el-button 
+                    :disabled="countdown > 0"
+                    @click="getCaptcha" 
+                    style="width: 100px;"
+                  >
+                    {{ countdown > 0 ? `${countdown}s` : '获取验证码' }}
+                  </el-button>
+              </div>
             </div>
             <el-button color="#626aef" type="success" :icon="User" round @click="submitLogin" size="large"
-              style="">注册提交</el-button>
+              style="margin-top: 40px;">注册提交</el-button>
           </div>
         </el-main>
       </el-container>
@@ -47,13 +62,14 @@
 import LittleStar from '@/util/LittleStar.vue';
 import {
   User,
+  Close,
 } from '@element-plus/icons-vue'
 import { ref, reactive, watch, inject } from 'vue';
 import axiosInstance from 'axios';
 import { useRouter } from 'vue-router';
 import { ElNotification } from 'element-plus';
 const backendAddress = inject('backendAddress');
-
+const router = useRouter();
 const showPopup = ref(false);
 const isProcessing = ref(false);
 const confirmPassword = ref('');
@@ -61,9 +77,11 @@ const registerForm = reactive({
   email: '',
   password: '',
   username: '',
+  captcha: '',
 });
+const countdown = ref(0);
+let timer = null;
 
-const router = useRouter();
 const submitLogin = async () => {
   console.log('点击了注册,', registerForm);
 
@@ -127,11 +145,33 @@ const submitLogin = async () => {
     isProcessing.value = false;
     return;
   }
-
+  if (registerForm.password.length < 6 || registerForm.password.length > 8) {
+    ElNotification({
+      duration: 2000,
+      title: 'warning',
+      message: '密码长度要求6-8位',
+      type: 'warning',
+      showClose: false,
+    });
+    isProcessing.value = false;
+    return;
+  }
+  if (!registerForm.captcha) {
+    ElNotification({
+      duration: 2000,
+      title: 'warning',
+      message: '验证码不能为空',
+      type: 'warning',
+      showClose: false,
+    });
+    isProcessing.value = false;
+    return;
+  }
   const params = {
     email: registerForm.email,
     username: registerForm.username,
     password: registerForm.password,
+    captcha: registerForm.captcha,
   };
 
 
@@ -140,7 +180,7 @@ const submitLogin = async () => {
     const res = await axiosInstance.post(`${backendAddress}/api/v1/public/register`, params);
     console.log('res', res);
     if (res.status === 200) {
-      if(res.data.code === 200){
+      if (res.data.code === 200) {
         ElNotification({
           duration: 2000,
           title: 'success',
@@ -149,7 +189,7 @@ const submitLogin = async () => {
           showClose: false,
         });
         router.push('/login');
-      }else{
+      } else {
         ElNotification({
           duration: 2000,
           title: 'error',
@@ -173,6 +213,10 @@ const submitLogin = async () => {
   }
 };
 
+const handleClose = () => {
+  router.push('/login');
+};
+
 watch(showPopup, (newVal) => {
   if (newVal) {
     setTimeout(() => {
@@ -185,6 +229,68 @@ watch(showPopup, (newVal) => {
     }, 1500);
   }
 });
+const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const getCaptcha = async () => {
+  if (!registerForm.email) {
+    ElNotification({
+      duration: 2000,
+      title: 'warning',
+      message: '请先输入邮箱',
+      type: 'warning',
+      showClose: false,
+    });
+    return;
+  }else if(!regex.test(registerForm.email)){
+    ElNotification({
+      duration: 2000,
+      title: 'warning',
+      message: '邮箱格式错误',
+      type: 'warning',
+      showClose: false,
+    });
+    return;
+  }
+      // 开始倒计时
+      countdown.value = 60;
+      timer = setInterval(() => {
+        countdown.value--;
+        if (countdown.value <= 0) {
+          clearInterval(timer);
+        }
+      }, 1000);
+  // try {
+  //   const res = await axiosInstance.post(`${backendAddress}/123`, {
+  //     email: registerForm.email
+  //   });
+    
+  //   if (res.data.code === 200) {
+  //     ElNotification({
+  //       duration: 2000,
+  //       title: 'success',
+  //       message: '验证码已发送',
+  //       type: 'success',
+  //       showClose: false,
+  //     });
+  //     // 开始倒计时
+  //     countdown.value = 60;
+  //     timer = setInterval(() => {
+  //       countdown.value--;
+  //       if (countdown.value <= 0) {
+  //         clearInterval(timer);
+  //       }
+  //     }, 1000);
+  //   }
+  // } catch (error) {
+  //   console.error('获取验证码失败', error);
+  //   ElNotification({
+  //     duration: 2000,
+  //     title: 'error',
+  //     message: '获取验证码失败',
+  //     type: 'error',
+  //     showClose: false,
+  //   });
+  // }
+};
 </script>
 
 <style scoped>
@@ -201,10 +307,11 @@ watch(showPopup, (newVal) => {
 
 .el-input-w {
   border-radius: 30px;
-  /* 透明度 */
   background-color: rgba(255, 255, 255, 0.7);
   box-shadow: 0 8px 16px rgba(5, 0, 0, 0.5);
   backdrop-filter: blur(5px) brightness(110%) contrast(90%);
+  overflow: hidden;
+  position: relative;
 }
 
 @keyframes slideDown {
@@ -312,5 +419,31 @@ body>.el-container {
 
 .db_button {
   margin-top: 30px;
+}
+
+.close-button {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  color: #909399;
+  z-index: 1000;
+}
+
+.close-button:hover {
+  background-color: rgba(144, 147, 153, 0.2);
+  transform: rotate(90deg);
+}
+
+.close-button .el-icon {
+  font-size: 20px;
+  transition: all 0.3s ease;
 }
 </style>

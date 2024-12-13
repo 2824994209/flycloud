@@ -25,10 +25,10 @@ import { ElNotification } from 'element-plus';
 import axiosInstance from 'axios';
 import { useCookies } from 'vue3-cookies';
 const { cookies } = useCookies();
-
 const backendAddress = inject('backendAddress');
 const centerDialogVisible = ref(false)
 const folderName = ref('')
+const fetchFolderData = inject('fetchFolderData');
 const createFolder = () => {
   centerDialogVisible.value = false
   const token = cookies.get('az')
@@ -41,6 +41,8 @@ const createFolder = () => {
       'Authorization': `Bearer ${token}`
     }
   }).then(res => {
+    fetchFolderData();
+    folderName.value=null
     if (res.data.code === 200) {
       ElNotification({
         duration: 2000,

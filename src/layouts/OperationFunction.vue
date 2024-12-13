@@ -63,10 +63,10 @@
 </template>
 <script setup>
 import { ref } from 'vue'
-import UploadFile from './UploadFile.vue';
-import CreateFile from './CreateFile.vue';
-import CreateFolder from './CreateFolder.vue';
-import LogoutPage from './LogoutPage.vue';
+import UploadFile from '../util/UploadFile.vue';
+import CreateFile from '../util/CreateFile.vue';
+import CreateFolder from '../util/CreateFolder.vue';
+import LogoutPage from '../util/LogoutPage.vue';
 
 const isDropdownVisible = ref(false);
 

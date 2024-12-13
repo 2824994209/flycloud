@@ -73,12 +73,14 @@
 
     </div>
     <div class="shangc">
+    <!-- 面包屑 -->
       <el-breadcrumb separator="/">
         <el-breadcrumb-item
           class="breadcrumb-item"
           @click="goToHome"
         >
-          首页
+          <!-- 首页 -->
+           <span >&nbsp;</span>
         </el-breadcrumb-item>
         <el-breadcrumb-item
           v-for="(item, index) in breadcrumbs"
@@ -91,7 +93,14 @@
       </el-breadcrumb>
     </div>
     <div ref="tableContainer" class="table-container">
-      <el-table :data="tableData" style="width: 100%; height: 500px;" :row-style="{ height: rowHeight + 'px' }">
+      <el-table 
+        v-loading="loading"
+        element-loading-text="Loading..."
+        element-loading-background="rgba(255, 255, 255, 1)"
+        :data="tableData" 
+        style="width: 100%; height: 500px;" 
+        :row-style="{ height: rowHeight + 'px' }"
+      >
         <el-table-column type="selection" width="55" />
         <el-table-column label="Name">
           <template #default="{ row }">
@@ -101,7 +110,7 @@
             <a class="el-table-column-a" @click="openFolder(row)" href="#">{{ row.name || row.file_name }}</a>
           </template>
         </el-table-column>
-        <el-table-column label="Size" width="90">
+        <el-table-column label="Size" width="130">
           <template #default="{ row }">
             <span v-if="row.type === 'file'">{{ formatFileSize(row.size) }}</span>
           </template>
@@ -109,7 +118,7 @@
         <el-table-column label="Modified" width="130">
           <template #default="{ row }">
             <el-tooltip class="item" :content="formatTimestamp(row.UpdatedAt || row.updated_at)" placement="top">
-              <span class="tooltip-text">{{ calculateTimeElapsed(row.UpdatedAt || row.updated_at) }}</span>
+              <span class="tooltip-text">{{ row.modifiedTimeElapsed }}</span>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -117,7 +126,7 @@
         <el-table-column property="actions" label="Actions" width="90">
           <template #default="{ row }">
             <div style="display: flex;">
-              <button class="actions-icon-button" @click="open1(row.name)">
+              <button class="actions-icon-button" @click="open1(row.file_name||row.name)">
                 <el-icon>
                   <Link />
                 </el-icon>
@@ -150,7 +159,6 @@
                             <el-icon>
                               <Download />
                             </el-icon>
-                            <a target="_blank" :href="donwloadUrl"></a>
                             <!-- 下载 -->
                             Download
                           </div>
@@ -170,7 +178,7 @@
                       </el-dropdown-item>
                       <el-dropdown-item>
                         <template #default>
-                          <div class="xlcdList">
+                          <div class="xlcdList" @click="showDetails(row)">
                             <el-icon>
                               <InfoFilled />
                             </el-icon>
@@ -207,6 +215,48 @@
     </template>
   </el-dialog>
   <OperationFunction />
+
+  <!-- 添加详情弹窗 -->
+  <el-dialog 
+    v-model="detailsVisible" 
+    :title="detailsData.type === 'folder' ? '文件夹详情' : '文件详情'"
+    width="400px"
+  >
+    <div class="details-content">
+      <div class="detail-item">
+        <span class="label">名称：</span>
+        <span>{{ detailsData.type === 'folder' ? detailsData.name : detailsData.file_name }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="label">类型：</span>
+        <span>{{ detailsData.type === 'folder' ? '文件夹' : '文件' }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="label">创建时间：</span>
+        <span>{{ formatTimestamp(detailsData.CreatedAt) }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="label">修改时间：</span>
+        <span>{{ formatTimestamp(detailsData.UpdatedAt || detailsData.updated_at) }}</span>
+      </div>
+      <template v-if="detailsData.type === 'folder'">
+        <div class="detail-item">
+          <span class="label">文件数量：</span>
+          <span>{{ detailsData.file_count || 0 }}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">子文件夹数量：</span>
+          <span>{{ detailsData.sub_folder_count || 0 }}</span>
+        </div>
+      </template>
+      <template v-else>
+        <div class="detail-item">
+          <span class="label">文件大小：</span>
+          <span>{{ formatFileSize(detailsData.size) }}</span>
+        </div>
+      </template>
+    </div>
+  </el-dialog>
 </template>
 <script setup>
 import MainLayout from '@/layouts/MainLayout.vue';
@@ -215,31 +265,42 @@ import { ElNotification } from 'element-plus'
 import { Download } from '@element-plus/icons';
 import axiosInstance from 'axios';
 import { useCookies } from 'vue3-cookies';
-import { Folder, Document } from '@element-plus/icons-vue'; // 引入图标
 const { cookies } = useCookies();
+import { Folder, Document } from '@element-plus/icons';
 const backendAddress = inject('backendAddress');
-import OperationFunction from '@/util/OperationFunction.vue';
+import OperationFunction from '@/layouts/OperationFunction.vue';
 // import { ElNotification } from 'element-plus';
 // import UploadFile from '@/util/UploadFile.vue';
 // import HelloWorld from '@/components/HelloWorld.vue';
 
 const receivedData = ref('');
 function calculateTimeElapsed(modifiedTimestamp) {
+  if (!modifiedTimestamp) {
+    return 'Unknown';
+  }
+  
   const currentTimestamp = Date.now();
   const diff = currentTimestamp - new Date(modifiedTimestamp).getTime();
-  if (diff < 1000 * 60) {
-    const seconds = Math.floor(diff / 1000);
+  
+  if (isNaN(diff)) {
+    return 'Unknown';
+  }
+  
+  const positiveDiff = Math.max(0, diff);
+  
+  if (positiveDiff < 1000 * 60) {
+    const seconds = Math.floor(positiveDiff / 1000);
     return `${seconds} second${seconds !== 1 ? 's' : ''} ago`;
   }
-  if (diff < 1000 * 60 * 60) {
-    const minutes = Math.floor(diff / (1000 * 60));
+  if (positiveDiff < 1000 * 60 * 60) {
+    const minutes = Math.floor(positiveDiff / (1000 * 60));
     return `${minutes} minute${minutes !== 1 ? 's' : ''} ago`;
   }
-  if (diff < 1000 * 60 * 60 * 24) {
-    const hours = Math.floor(diff / (1000 * 60 * 60));
+  if (positiveDiff < 1000 * 60 * 60 * 24) {
+    const hours = Math.floor(positiveDiff / (1000 * 60 * 60));
     return `${hours} hour${hours !== 1 ? 's' : ''} ago`;
   }
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const days = Math.floor(positiveDiff / (1000 * 60 * 60 * 24));
   return `${days} day${days !== 1 ? 's' : ''} ago`;
 }
 
@@ -263,6 +324,7 @@ const handleUpdate = (data) => {
   //处理搜索框传过来的数据
   receivedData.value = data;
   console.log("接收到的数据：" + receivedData.value)
+  fetchFolderData(receivedData.value,token.value)
 };
 
 //数据存放
@@ -277,7 +339,7 @@ const showMore = (row) => {
 
 const open1 = (row) => {
   ElNotification({
-    message: '成功复制' + row + '下载连接',
+    message: '成功复制' + row + '分享连接',
     type: 'success',
     plain: true,
   })
@@ -285,21 +347,40 @@ const open1 = (row) => {
 
 // dropdown
 // 下载
-const donwloadUrl = ref('')
 const dropdownDownload = (row) => {
-  console.log(row)
-  axiosInstance.get(`${backendAddress}/api/v1/file/download/`+row.id, {
+  axiosInstance.get(`${backendAddress}/api/v1/fs/file/${row.id}`, {
     headers: {
       'Authorization': `Bearer ${token.value}`
-    }
+    },
+    responseType: 'blob'  // 设置响应类型为blob
   }).then(response => {    
-    console.log(response)
-    // donwloadUrl.value = response.data;
-    // window.open(donwloadUrl.value, '_blank');
+    // 创建blob链接
+    const blob = new Blob([response.data], { 
+      type: response.headers['content-type'] 
+    });
+    const url = window.URL.createObjectURL(blob);
+    
+    // 创建一个临时的a标签来触发下载
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = row.file_name; // 使用文件原始名称
+    document.body.appendChild(link);
+    link.click();
+    
+    // 清理
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  }).catch(error => {
+    console.error('下载失败:', error);
+    ElNotification({
+      title: '错误',
+      message: '文件下载失败',
+      type: 'error'
+    });
   });
-}
+};
 
-// 删除
+// 删除文件
 const dropdownSelecteDelete = ref({
   type: '',
   name: '',
@@ -312,7 +393,7 @@ const openDelete = (row) => {
   dropdownSelecteDelete.value = row
 
 }
-// 删除文件
+
 const token = ref(cookies.get('az'))
 const deleteSuccessfully = () => {
   dropdownDelete.value = false;
@@ -332,6 +413,14 @@ const deleteSuccessfully = () => {
         type: 'success',
         showClose: false
       });
+    }else if(res.data.code === 500){
+      ElNotification({
+        duration: 2000,
+        title: '',
+        message: "文件删除失败",
+        type: 'error',
+        showClose: false
+      });
     }
   })
   .catch(error => {
@@ -346,34 +435,31 @@ const deleteSuccessfully = () => {
   });
 }
 const rootfolderid = ref('')
-const rootfolder = (token) => {
+const loading = ref(false);
+const rootfolder = async (token) => {
+  loading.value = true;
   try {
-    console.log('请求地址', backendAddress)
-    console.log(`${backendAddress}/api/v1/user/info`)
-    console.log('token',token)
-    axiosInstance.get(`${backendAddress}/api/v1/user/info`, {
+    const res = await axiosInstance.get(`${backendAddress}/api/v1/user/info`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
-    }).then(res => {
-      if (res.status === 200) {
-        if(res.data.code === 200){
-          rootfolderid.value =  res.data.data.rootfolderid;
-          cookies.set('rootfolderid',rootfolderid.value,'1d')
-          cookies.set('currentFolderId',rootfolderid.value,'1d')
-          requestsRootfolder(token)
-
-        }else{
-          ElNotification({
-            duration: 2000,
-            title: 'error',
-            message: res.data.message,
-            type: 'error',
-            showClose: false
-          });
-        }
+    });
+    if (res.status === 200) {
+      if(res.data.code === 200){
+        rootfolderid.value = res.data.data.rootfolderid;
+        cookies.set('rootfolderid', rootfolderid.value, '1d');
+        cookies.set('currentFolderId', rootfolderid.value, '1d');
+        await requestsRootfolder(token);
+      } else {
+        ElNotification({
+          duration: 2000,
+          title: 'error',
+          message: res.data.message,
+          type: 'error',
+          showClose: false
+        });
       }
-    })
+    }
   } catch (error) {
     console.error('请求错误', error);
     ElNotification({
@@ -383,8 +469,10 @@ const rootfolder = (token) => {
       type: 'error',
       showClose: false
     });
+  } finally {
+    loading.value = false;
   }
-}
+};
 const requestsRootfolder = async (token) => {
   const rootfolderid = cookies.get('rootfolderid');
   if (!rootfolderid) {
@@ -399,7 +487,6 @@ const requestsRootfolder = async (token) => {
     return;
   }
   try {
-    console.log("/api/v1/fs/folder/",token)
     const res = await axiosInstance.get(`${backendAddress}/api/v1/fs/folder/${rootfolderid}`, {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -407,11 +494,21 @@ const requestsRootfolder = async (token) => {
     });
     if (res.status === 200) {
       const data = res.data.data;
-      // 合并文件和文件夹数据
+      // 修改这里的数据处理逻辑
       tableData.value = [
-        ...(data.folders || []).map(folder => ({ ...folder, type: 'folder' })),
-        ...(data.files || []).map(file => ({ ...file, type: 'file' }))
+        ...(data.folders || []).map(folder => ({
+          ...folder,
+          type: 'folder',
+          modifiedTimeElapsed: calculateTimeElapsed(folder.updated_at || folder.UpdatedAt)
+        })),
+        ...(data.files || []).map(file => ({
+          ...file,
+          type: 'file',
+          modifiedTimeElapsed: calculateTimeElapsed(file.updated_at || file.UpdatedAt)
+        }))
       ];
+      
+      breadcrumbs.value = data.breadcrumbs;
       isEmpty.value = tableData.value.length === 0;
     }
   } catch (error) {
@@ -432,7 +529,9 @@ const upload = () =>{
   fetchFolderData(cookies.get('currentFolderId'),token.value)
 }
 provide('fetchFolderData', upload);
-const fetchFolderData = async (folderId,token) => {
+
+const fetchFolderData = async (folderId, token) => {
+  loading.value = true;
   try {
     const res = await axiosInstance.get(`${backendAddress}/api/v1/fs/folder/${folderId}`, {
       headers: {
@@ -441,20 +540,23 @@ const fetchFolderData = async (folderId,token) => {
     });
     if (res.status === 200) {
       const data = res.data.data;
+      // 只在获取数据时计算一次时间
       tableData.value = [
         ...(data.folders || []).map(folder => ({
           ...folder,
           type: 'folder',
+          // 计算一次时间后就不再更新
           modifiedTimeElapsed: calculateTimeElapsed(folder.updated_at)
         })),
         ...(data.files || []).map(file => ({
           ...file,
           type: 'file',
+          // 计算一次时间后就不再更新
           modifiedTimeElapsed: calculateTimeElapsed(file.UpdatedAt)
         }))
       ];
-      // breadcrumbs.value = data.breadcrumbs.filter(item => item.name !== '根目录');
-      breadcrumbs.value = data.breadcrumbs
+      
+      breadcrumbs.value = data.breadcrumbs;
       isEmpty.value = tableData.value.length === 0;
     }
   } catch (error) {
@@ -466,6 +568,8 @@ const fetchFolderData = async (folderId,token) => {
       type: 'error',
       showClose: false
     });
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -479,16 +583,26 @@ const openFolder = (row) => {
 };
 
 const handleBreadcrumbClick = (item) => {
-  localStorage.setItem('currentFolderId', item.id);
-  const token = cookies.get('az')
-  fetchFolderData(item.id,token);
+  cookies.set('currentFolderId', item.id,'1d')
+  const token = cookies.get('az');
+  fetchFolderData(item.id, token);
 };
 
 const goToHome = () => {
   const rootFolderId = cookies.get('rootfolderid');
-  cookies.set('currentFolderId',rootFolderId,'1d')
-  const token = cookies.get('az')
-  fetchFolderData(rootFolderId,token);
+  cookies.set('currentFolderId', rootFolderId, '1d');
+  const token = cookies.get('az');
+  fetchFolderData(rootFolderId, token);
+};
+
+// 添加详情弹窗相关的响应式变量
+const detailsVisible = ref(false);
+const detailsData = ref({});
+
+// 显示详情的方法
+const showDetails = (row) => {
+  detailsData.value = row;
+  detailsVisible.value = true;
 };
 
 onMounted(() => {
@@ -507,7 +621,19 @@ onMounted(() => {
 </script>
 
 <style>
+.common-layout {
+  --el-border-radius-base: 10px;
+}
 
+/* 去掉列表滚动条 */
+.el-scrollbar .el-scrollbar__bar.is-vertical .el-scrollbar__thumb {
+    display: none;
+  }
+
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
 .no-data-message {
   display: flex;
@@ -717,5 +843,20 @@ onMounted(() => {
   cursor: pointer;
 }
 
+.details-content {
+  padding: 10px;
+}
+
+.detail-item {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.detail-item .label {
+  width: 100px;
+  color: #606266;
+  font-weight: 500;
+}
 
 </style>

@@ -8,7 +8,7 @@
               
               <div style="height: 230px">
                 
-                <p style="height: 10px;font-weight:bolder;">登入</p>
+                <p style="height: 10px;font-weight:bolder;margin-top: -20px;">登入</p>
                   <el-input v-model="loginForm.username" style="width: 300px;margin-bottom: -100px;;" placeholder="mail" />
                   <el-input
                       v-model="loginForm.password"
@@ -19,10 +19,24 @@
                       size="default"
                       @keyup.enter="submitLogin"
                   />
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: -90px; min-width: 300px; width: 300px; margin-left: auto; margin-right: auto;">
+                    <el-input
+                      v-model="loginForm.captcha"
+                      style="width: 150px;margin-right: 30px;"
+                      placeholder="验证码"
+                      @keyup.enter="submitLogin"
+                    />
+                    <img 
+                      :src="captchaUrl" 
+                      @click="refreshCaptcha" 
+                      style="height: 40px; cursor: pointer;width: 100px;"
+                      alt="验证码"
+                    />
+                  </div>
               </div>
-              <el-button color="#626aef" type="success" :icon="User" round  @click="submitRegister" size="large" style="margin-top: -30px;" >注册</el-button>
+              <el-button color="#626aef" type="success" :icon="User" round  @click="submitRegister" size="large" style="margin-top: 30px;" >注册</el-button>
               <span style="padding-left: 50px;"></span>
-              <el-button color="#626aef" type="success" :icon="Key" round  @click="submitLogin" size="large" style="margin-top: -30px;">提交</el-button>
+              <el-button color="#626aef" type="success" :icon="Key" round  @click="submitLogin" size="large" style="margin-top: 30px;">提交</el-button>
             </div>
           </el-main>
         </el-container>
@@ -37,6 +51,14 @@
       </section>
       <!-- 弹出窗口，如果有 -->
 
+      <!-- 添加全屏loading -->
+      <div class="fullscreen-loading" v-if="isLoading">
+        <div class="loading-content">
+          <el-icon class="loading-icon"><Loading /></el-icon>
+          <span>登录中，请稍候...</span>
+        </div>
+      </div>
+
     </div>
     </template>
   <script setup>
@@ -44,7 +66,7 @@
   import { useRouter } from 'vue-router';
   import { ElNotification } from 'element-plus';
   import LittleStar from '@/util/LittleStar.vue';
-  import { Key, User } from '@element-plus/icons-vue';
+  import { Key, User, Loading } from '@element-plus/icons-vue';
   import axiosInstance from 'axios';
   import { useCookies } from 'vue3-cookies';
 
@@ -58,8 +80,13 @@
   const isProcessing = ref(false);
   const loginForm = reactive({
     username: '',
-    password: ''
+    password: '',
+    captcha: '',
+    captchaId: ''
   });
+
+  const isLoading = ref(false);
+  const captchaUrl = ref('');
 
   const submitRegister = () => {
     console.log('点击了注册,', loginForm);
@@ -69,6 +96,27 @@
     }
     isProcessing.value = true;
     router.push('/register');
+  };
+
+  const refreshCaptcha = async () => {
+    try {
+      const response =  await axiosInstance.get(`${backendAddress}/api/v1/public/captcha/`);
+      
+      if (response.data.code === 200) {
+        loginForm.captchaId = response.data.data.captcha_id;
+        captchaUrl.value = `data:image/png;base64,${response.data.data.image}`;
+        console.log('captchaUrl',captchaUrl.value);
+      }
+    } catch (error) {
+      console.error('获取验证码失败:', error);
+      ElNotification({
+        duration: 2000,
+        title: 'error',
+        message: '获取验证码失败',
+        type: 'error',
+        showClose: false
+      });
+    }
   };
 
   const submitLogin = async () => {
@@ -101,28 +149,38 @@
       isProcessing.value = false;
       return;
     }
+    if (!loginForm.captcha) {
+      ElNotification({
+        duration: 2000,
+        title: 'warning',
+        message: '验证码不能为空',
+        type: 'warning',
+        showClose: false
+      });
+      isProcessing.value = false;
+      return;
+    }
 
     const params = {
       email: loginForm.username,
-      password: loginForm.password
+      password: loginForm.password,
+      captcha: loginForm.captcha,
+      captchaId: loginForm.captchaId
     };
 
     try {
+      isLoading.value = true;  
       console.log('请求地址',backendAddress)
       const res = await axiosInstance.post(`${backendAddress}/api/v1/public/login`, params);
       
       if (res.status === 200) {
+        
         console.log('登录成功', res.data);
         
         const token = res.data.data.token;
         console.log('token',token)
         cookies.set('az', token, '1d');
-        router.push('/user/personal');
-        // if(res.data.role === 'admin'){
-        //   router.push('/admin/system');
-        // }else{
-        //   router.push('/user/personal');
-        // }
+        
         ElNotification({
           duration: 2000,
           title: 'success',
@@ -130,6 +188,10 @@
           type: 'success',
           showClose: false
         });
+
+        // 延迟跳转以显示loading效果
+        await router.push('/user/personal');
+        
       }
     } catch (error) {
       console.error('请求错误', error);
@@ -141,7 +203,9 @@
         showClose: false
       });
     } finally {
-      isProcessing.value = false;
+      isProcessing.value = false; 
+      // 无论成功失败都关闭loading
+      isLoading.value = false;
     }
   };
 
@@ -160,10 +224,13 @@
 
   onMounted(() => {
     console.log('onMounted');
-
+    refreshCaptcha();
+    // axiosInstance.get(`${backendAddress}/api/v1/captcha`).catch(error => {
+    //   console.log('123',error);
+    // });
   });
   </script>
-  
+
   <style scoped>
   
   .el-container {
@@ -301,6 +368,47 @@
       100% {
         transform: translateY(100vh) translateX(100px);
         opacity: 0;
+      }
+    }
+
+    /* 添加loading相关样式 */
+    .fullscreen-loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .loading-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .loading-icon {
+      font-size: 40px;
+      color: #626aef;
+      animation: rotating 2s linear infinite;
+    }
+
+    .loading-content span {
+      color: #606266;
+      font-size: 14px;
+    }
+
+    @keyframes rotating {
+      0% {
+        transform: rotate(0);
+      }
+      100% {
+        transform: rotate(360deg);
       }
     }
   </style>

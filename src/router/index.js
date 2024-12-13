@@ -15,8 +15,15 @@ import adminBasicSetting from '@/admin_page/BasicSetting.vue';
 import UserShare from '@/page/UserShare.vue';
 import HistoryDate from '@/page/HistoryDate.vue';
 import LittleStar from '@/util/LittleStar.vue';
+import PageLoss from '@/util/PageLoss.vue';
 const routes = [
-  { path: '/', component: PageDashboard, meta: { requiresAuth: true } },
+  { 
+    path: '/', 
+    redirect: () => {
+      const isAuthenticated = cookies.get('az');
+      return isAuthenticated ? '/user/personal' : '/login';
+    }
+  },
   { path: '/admin/system', component: SystemExplain,  },
   { path: '/admin/user', component: UserManage,  },
   { path: '/admin/basic', component: adminBasicSetting, },
@@ -28,6 +35,8 @@ const routes = [
   { path: '/user/share', component: UserShare,meta: { requiresAuth: true } },
   { path: '/user/date', component: HistoryDate,meta: { requiresAuth: true } },
   { path: '/user/star', component: LittleStar, meta: { requiresAuth: true }},
+  { path: '/404', component: PageLoss },
+  { path: '/:pathMatch(.*)*', redirect: '/404' }
 ];
 
 const router = createRouter({

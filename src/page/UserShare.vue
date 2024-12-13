@@ -11,10 +11,11 @@
                 
             </div>
         </div>
-
-	</MainLayout>
+    </MainLayout>
+    <OperationFunction />
 </template>
 <script setup>
+import OperationFunction from '@/layouts/OperationFunction.vue';
 // import { ref } from 'vue'
 import MainLayout from '@/layouts/MainLayout.vue';
 </script>
