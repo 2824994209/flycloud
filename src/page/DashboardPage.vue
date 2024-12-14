@@ -289,8 +289,9 @@ function calculateTimeElapsed(modifiedTimestamp) {
   const positiveDiff = Math.max(0, diff);
   
   if (positiveDiff < 1000 * 60) {
-    const seconds = Math.floor(positiveDiff / 1000);
-    return `${seconds} second${seconds !== 1 ? 's' : ''} ago`;
+    // const seconds = Math.floor(positiveDiff / 1000);
+    // return `${seconds} second${seconds !== 1 ? 's' : ''} ago`;
+    return `now`
   }
   if (positiveDiff < 1000 * 60 * 60) {
     const minutes = Math.floor(positiveDiff / (1000 * 60));
