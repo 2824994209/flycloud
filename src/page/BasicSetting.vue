@@ -6,6 +6,8 @@
 					<h3>用户信息</h3>
 					<div class="user-info">
 						<span>用户名：{{ userInfo }}</span>
+						<div style="margin-bottom: 10px;"></div>
+						<span>邮箱：{{ userEmail }}</span>
 					</div>
 					<div class="button-group">
 						<el-button color="#626aef" @click="showUsernameDialog">修改用户名</el-button>
@@ -24,7 +26,8 @@
 					<div ref="statsChartRef" style="height: 300px"></div>
 				</div>
 				<div class="shadow-box">
-					<h3>待添加内容</h3>
+					<h3>存储空间</h3>
+					<div ref="quotaChartRef" style="height: 300px"></div>
 				</div>
 			</div>
 		</div>
@@ -52,7 +55,7 @@
 					<el-input v-model="passwordForm.newPassword" type="password" placeholder="请输入新密码" show-password />
 				</el-form-item>
 				<el-form-item prop="confirmPassword">
-					<el-input v-model="passwordForm.confirmPassword" type="password" placeholder="请确认新密码" show-password />
+					<el-input v-model="passwordForm.confirmPassword" type="password" placeholder="��确认新密码" show-password />
 				</el-form-item>
 			</el-form>
 			<template #footer>
@@ -79,7 +82,9 @@ const backendAddress = inject('backendAddress');
 
 const typeChartRef = ref(null);
 const statsChartRef = ref(null);
+const quotaChartRef = ref(null);
 const userInfo = ref("");
+const userEmail = ref("");
 const usernameDialogVisible = ref(false);
 const passwordDialogVisible = ref(false);
 const newUsername = ref('');
@@ -107,6 +112,7 @@ const getUserInfo = async () => {
 			}
 		});
 		userInfo.value = res.data.data.username;
+		userEmail.value = res.data.data.email;
 		console.log("userInfo", userInfo.value)
 	} catch (error) {
 		console.error('获取用户信息失败', error);
@@ -125,7 +131,7 @@ const initTypeChart = async () => {
 
 		const colors = ['#626aef', '#6c8ff7', '#95a7fb', '#bdc4fd'];
 		const barData = types.map((type, index) => ({
-			name: type.toUpperCase(),
+			name: type,
 			value: 1,
 			itemStyle: {
 				color: colors[index],  // 为每个条形设置不同的颜色
@@ -142,7 +148,7 @@ const initTypeChart = async () => {
 				left: '3%',
 				right: '4%',
 				bottom: '3%',
-				top: '3%',
+				top: '10%',
 				containLabel: true
 			},
 			xAxis: {
@@ -151,7 +157,7 @@ const initTypeChart = async () => {
 			},
 			yAxis: {
 				type: 'category',
-				data: types.map(type => type.toUpperCase()),
+				data: types.map(type => type.toLowerCase()),
 				axisLine: {
 					show: false
 				},
@@ -198,7 +204,7 @@ const initStatsChart = async () => {
 		const totalFiles = res.data.data.total_files;
 
 		const pieData = typeStats.map(item => ({
-			name: item.type.toUpperCase(),
+			name: item.type.toLowerCase(),
 			value: item.count,
 			itemStyle: {
 				borderRadius: 5
@@ -210,7 +216,7 @@ const initStatsChart = async () => {
 			title: {
 				text: `总文件数：${totalFiles}`,
 				left: 'center',
-				top: '5%',
+				top: '1%',
 				textStyle: {
 					color: '#333',
 					fontSize: 14,
@@ -221,24 +227,24 @@ const initStatsChart = async () => {
 				trigger: 'item',
 				formatter: '{b}: {c} 个文件 ({d}%)'
 			},
-			legend: {
-				orient: 'vertical',
-				left: 'left',
-				top: 'middle',
-				itemWidth: 10,
-				itemHeight: 10,
-				itemGap: 15,
-				formatter: name => {
-					const item = typeStats.find(s => s.type.toUpperCase() === name);
-					return `${name}: ${item.count}个`;
-				}
-			},
+			// legend: {
+			// 	orient: 'vertical',
+			// 	left: 'left',
+			// 	top: 'middle',
+			// 	itemWidth: 10,
+			// 	itemHeight: 10,
+			// 	itemGap: 15,
+			// 	formatter: name => {
+			// 		const item = typeStats.find(s => s.type.toUpperCase() === name);
+			// 		return `${name}: ${item.count}个`;
+			// 	}
+			// },
 			series: [
 				{
 					name: '文件统计',
 					type: 'pie',
 					radius: ['40%', '70%'],
-					center: ['60%', '50%'],
+					center: ['50%', '50%'],
 					avoidLabelOverlap: true,
 					itemStyle: {
 						borderColor: '#fff',
@@ -280,6 +286,98 @@ const initStatsChart = async () => {
 	}
 };
 
+// 添加初始化配额图表的方法
+const initQuotaChart = async () => {
+	try {
+		const res = await axios.get(`${backendAddress}/api/v1/user/quota`, {
+			headers: {
+				'Authorization': `Bearer ${token}`
+			}
+		});
+		
+		const { quota, used_size } = res.data.data;
+		const usedGB = (used_size / 1024 / 1024 / 1024).toFixed(2);
+		const totalGB = (quota / 1024 / 1024 / 1024).toFixed(2);
+		
+		const chart = echarts.init(quotaChartRef.value);
+		chart.setOption({
+			title: {
+				text: `已使用：${usedGB}GB / ${totalGB}GB`,
+				left: 'center',
+				top: '1%',
+				textStyle: {
+					color: '#333',
+					fontSize: 14,
+					fontWeight: 'normal'
+				}
+			},
+			tooltip: {
+				trigger: 'item',
+				formatter: '{b}: {c}GB ({d}%)'
+			},
+			legend: {
+				orient: 'vertical',
+				left: 'left',
+				top: 'middle',
+				itemWidth: 10,
+				itemHeight: 10,
+				itemGap: 15,
+				formatter: name => {
+					if (name === '已使用') {
+						return `已使用`;
+					}
+					return `剩余空间`;
+				}
+			},
+			series: [
+				{
+					name: '存储空间',
+					type: 'pie',
+					radius: ['40%', '70%'],
+					center: ['50%', '50%'],
+					avoidLabelOverlap: true,
+					itemStyle: {
+						borderColor: '#fff',
+						borderWidth: 2
+					},
+					label: {
+						show: false
+					},
+					emphasis: {
+						label: {
+							show: false
+						},
+						itemStyle: {
+							shadowBlur: 10,
+							shadowOffsetX: 0,
+							shadowColor: 'rgba(0, 0, 0, 0.2)'
+						}
+					},
+					data: [
+						{
+							value: usedGB,
+							name: '已使用',
+							itemStyle: { color: '#626aef' }
+						},
+						{
+							value: (totalGB - usedGB).toFixed(2),
+							name: '剩余空间',
+							itemStyle: { color: '#bdc4fd' }
+						}
+					]
+				}
+			]
+		});
+
+		window.addEventListener('resize', () => {
+			chart.resize();
+		});
+
+	} catch (error) {
+		console.error('获取配额信息失败', error);
+	}
+};
+
 // 更新用户名的方法
 const updateUsername = async () => {
 	if (!newUsername.value) {
@@ -318,7 +416,7 @@ const updateUsername = async () => {
 	}
 };
 
-// 密码验证规则
+// 密码验证规���
 const passwordRules = {
 	oldPassword: [
 		{ required: true, message: '请输入原密码', trigger: 'blur' }
@@ -392,6 +490,7 @@ onMounted(() => {
 	getUserInfo();
 	initTypeChart();
 	initStatsChart();
+	initQuotaChart();
 });
 </script>
 

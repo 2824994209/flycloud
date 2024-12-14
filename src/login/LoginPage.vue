@@ -29,10 +29,10 @@
         </el-form-item>
 
         <!-- 验证码输入框和图片 -->
-        <el-form-item prop="captcha">
+        <el-form-item prop="code">
           <div class="captcha-container">
             <el-input 
-              v-model="loginForm.captcha" 
+              v-model="loginForm.code" 
               placeholder="验证码"
               @keyup.enter="submitLogin"
             />
@@ -90,7 +90,7 @@ const captchaUrl = ref('')
 const loginForm = reactive({
   email: '',
   password: '',
-  captcha: '',
+  code: '',
   captchaId: ''
 })
 // 表单验证规则
@@ -107,7 +107,7 @@ const rules = {
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, max: 8, message: '密码长度在6-8位之间', trigger: 'blur' }
   ],
-  captcha: [
+  code: [
     { required: true, message: '请输入验证码', trigger: 'blur' },
     { min: 6, max: 6, message: '验证码长度为6位', trigger: 'blur' }
   ]
@@ -150,7 +150,7 @@ const submitLogin = async () => {
     const res = await axios.post(`${backendAddress}/api/v1/public/login`, {
       email: loginForm.email,
       password: loginForm.password,
-      captcha: loginForm.captcha,
+      code: loginForm.code,
       captcha_id: loginForm.captchaId
     })
 

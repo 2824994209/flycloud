@@ -1,7 +1,7 @@
 <template>
   <MainLayout @update="handleUpdate">
     <div class="main_header">
-      <span class="header-title">personal</span>
+      <span class="header-title">个人空间</span>
       <div class="header_left">
         <div class="typesetting">
           <button class="icon-button" @click="rowHeight = 30">
@@ -117,7 +117,7 @@
         </el-table-column>
         <el-table-column label="Modified" width="130">
           <template #default="{ row }">
-            <el-tooltip class="item" :content="formatTimestamp(row.UpdatedAt || row.updated_at)" placement="top">
+            <el-tooltip class="item" :content="formatTimestamp(row.updated_at)" placement="top">
               <span class="tooltip-text">{{ row.modifiedTimeElapsed }}</span>
             </el-tooltip>
           </template>
@@ -126,12 +126,12 @@
         <el-table-column property="actions" label="Actions" width="90">
           <template #default="{ row }">
             <div style="display: flex;">
-              <button class="actions-icon-button" @click="open1(row.file_name||row.name)">
+              <!-- <button class="actions-icon-button" @click="open1(row.file_name||row.name)">
                 <el-icon>
                   <Link />
                 </el-icon>
 
-              </button>
+              </button> -->
               <button class="actions-icon-button" @click="showMore(row.name)">
                 <el-dropdown trigger="click" placement="bottom-end">
                   <span class="el-dropdown-link">
@@ -143,7 +143,7 @@
                     <el-dropdown-menu class="custom-dropdowna">
                       <el-dropdown-item>
                         <template #default>
-                          <div class="xlcdList">
+                          <div class="xlcdList" @click="Sharecontent(row)">
                             <el-icon>
                               <Share />
                             </el-icon>
@@ -257,6 +257,72 @@
       </template>
     </div>
   </el-dialog>
+
+  <!-- 添加分享弹窗 -->
+  <el-dialog
+    v-model="shareDialogVisible"
+    title="分享设置"
+    width="500px"
+  >
+    <div class="share-content">
+      <el-form :model="shareForm" label-width="120px">
+        <el-form-item label="过期时间">
+          <el-date-picker
+            v-model="shareForm.expireTime"
+            type="date"
+            placeholder="选择过期日期"
+            format="YYYY-MM-DD"
+            value-format="YYYY-MM-DD"
+            :disabledDate="disabledDate"
+          />
+        </el-form-item>
+        <el-form-item label="最大下载次数">
+          <el-input-number 
+            v-model="shareForm.maxDownloads"
+            :min="1"
+            :max="999"
+          />
+        </el-form-item>
+      </el-form>
+    </div>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button type="primary" @click="handleShare" color="#626aef">确认分享</el-button>
+        <el-button @click="shareDialogVisible = false" plain color="#626aef">取消</el-button>
+      </div>
+    </template>
+  </el-dialog>
+
+  <!-- 新增分享成功弹窗 -->
+  <el-dialog
+    v-model="shareSuccessVisible"
+    title="分享成功"
+    width="500px"
+    :show-close="true"
+  >
+    <div class="success-content">
+      <div class="share-info-item">
+        <span class="label">下载链接：</span>
+        <el-input
+          v-model="shareLink"
+          readonly
+          class="share-input"
+          @focus="copyText(shareLink)"
+        >
+        </el-input>
+      </div>
+      <div class="share-info-item">
+        <span class="label">分享码：</span>
+        <el-input
+          v-model="shareCode"
+          readonly
+          class="share-input"
+          @focus="copyText(shareCode)"
+        >
+        </el-input>
+      </div>
+    </div>
+  </el-dialog>
 </template>
 <script setup>
 import MainLayout from '@/layouts/MainLayout.vue';
@@ -289,9 +355,9 @@ function calculateTimeElapsed(modifiedTimestamp) {
   const positiveDiff = Math.max(0, diff);
   
   if (positiveDiff < 1000 * 60) {
-    // const seconds = Math.floor(positiveDiff / 1000);
-    // return `${seconds} second${seconds !== 1 ? 's' : ''} ago`;
-    return `now`
+    const seconds = Math.floor(positiveDiff / 1000);
+    return `${seconds} second${seconds !== 1 ? 's' : ''} ago`;
+    // return `now`
   }
   if (positiveDiff < 1000 * 60 * 60) {
     const minutes = Math.floor(positiveDiff / (1000 * 60));
@@ -338,13 +404,13 @@ const showMore = (row) => {
   console.log(row)
 };
 
-const open1 = (row) => {
-  ElNotification({
-    message: '成功复制' + row + '分享连接',
-    type: 'success',
-    plain: true,
-  })
-};
+// const open1 = (row) => {
+//   ElNotification({
+//     message: '成功复制' + row + '分享连接',
+//     type: 'success',
+//     plain: true,
+//   })
+// };
 
 // dropdown
 // 下载
@@ -555,19 +621,19 @@ const fetchFolderData = async (folderId, token) => {
     });
     if (res.status === 200) {
       const data = res.data.data;
-      // 只在获取数据时计算一次时间
+      // 修改数据处理逻辑
       tableData.value = [
         ...(data.folders || []).map(folder => ({
           ...folder,
           type: 'folder',
-          // 计算一次时间后就不再更新
-          modifiedTimeElapsed: calculateTimeElapsed(folder.updated_at)
+          // 统一使用updated_at字段
+          modifiedTimeElapsed: calculateTimeElapsed(folder.updated_at || folder.UpdatedAt)
         })),
         ...(data.files || []).map(file => ({
           ...file,
           type: 'file',
-          // 计算一次时间后就不再更新
-          modifiedTimeElapsed: calculateTimeElapsed(file.UpdatedAt)
+          // 统一使用updated_at字段
+          modifiedTimeElapsed: calculateTimeElapsed(file.updated_at || file.UpdatedAt)
         }))
       ];
       
@@ -620,6 +686,99 @@ const showDetails = (row) => {
   detailsVisible.value = true;
 };
 
+// 分享相关的响应式变量
+const shareDialogVisible = ref(false)
+const shareForm = ref({
+  expireTime: null, 
+  maxDownloads: 0
+})
+const currentShareFile = ref(null)
+
+// 打开分享弹窗
+const Sharecontent = (row) => {
+  currentShareFile.value = row
+  shareDialogVisible.value = true
+  shareForm.value = {
+    expireTime: '', 
+    maxDownloads: 0
+  }
+}
+
+// 处理分享
+const handleShare = () => {
+  if(!shareForm.value.expireTime) {
+    ElNotification({
+      title: '提示',
+      message: '请选择过期时间',
+      type: 'warning'
+    })
+    return
+  }
+  const formattedExpireTime = `${shareForm.value.expireTime}T23:59:59Z`
+  const shareData = {
+    expire_time: formattedExpireTime,
+    max_download: shareForm.value.maxDownloads
+  }
+  if (currentShareFile.value.type === 'file') {
+    shareData.file_ids = [currentShareFile.value.id]
+  } else {
+    shareData.folder_ids = [currentShareFile.value.id]
+  }
+  console.log(shareData)
+  // 这里调用分享API
+  axiosInstance.post(`${backendAddress}/api/v1/share/create`, shareData, {
+    headers: {
+      'Authorization': `Bearer ${token.value}`
+    }
+  }).then(res => {
+    if(res.data.code === 200) {
+      ElNotification({
+        title: '成功',
+        message: '分享成功',
+        type: 'success'
+      })
+      shareDialogVisible.value = false
+      successShare(res.data.data.share_link, res.data.data.share_code)
+    }
+  }).catch(err => {
+    console.log(err)
+    ElNotification({
+      title: '错误',
+      message: '分享失败',
+      type: 'error' 
+    })
+  })
+}
+const shareLink = ref('')
+const shareCode = ref('')
+const shareSuccessVisible = ref(false)
+const successShare = (share_link, share_code) => {
+  shareLink.value = share_link
+  shareCode.value = share_code
+  shareSuccessVisible.value = true
+}
+const disabledDate = (time) => {
+  return time.getTime() < Date.now() - 8.64e7 // 禁用今天之前的日期
+}
+
+// 复制文本功能
+const copyText = async (text) => {
+  try {
+    await navigator.clipboard.writeText(text)
+    ElNotification({
+      title: '成功',
+      message: '复制成功',
+      type: 'success'
+    })
+  } catch (err) {
+    ElNotification({
+      title: '错误',
+      message: '复制失败',
+      type: 'error'
+    })
+  }
+}
+
 onMounted(() => {
   console.log('DashboardPage')
   
@@ -635,15 +794,24 @@ onMounted(() => {
 })
 </script>
 
+<style scoped>
+:deep(.el-input__wrapper) {
+  border-radius: 10px !important;
+  box-shadow: none;
+  border: 1px solid #dcdfe6;
+}
+
+:deep(.el-input__wrapper:focus-within) {
+  border-color: #626aef !important;
+  box-shadow: 0 0 0 1px #626aef !important;
+}
+</style>
 <style>
 .common-layout {
   --el-border-radius-base: 10px;
 }
 
-/* 去掉列表滚动条 */
-.el-scrollbar .el-scrollbar__bar.is-vertical .el-scrollbar__thumb {
-    display: none;
-  }
+
 
 * {
   -ms-overflow-style: none;
@@ -658,6 +826,10 @@ onMounted(() => {
   font-size: 18px;
   color: #999;
 }
+/* 去掉列表滚动条 */
+.el-scrollbar .el-scrollbar__bar.is-vertical .el-scrollbar__thumb {
+    display: none;
+}
 :root {
   --popper-overflow: hidden;
   /* 默认值 */
@@ -666,37 +838,18 @@ onMounted(() => {
 .el-popper {
   overflow: var(--popper-overflow);
 }
-
 .custom-popper {
   --popper-overflow: auto;
   /* 只在这个下拉菜单中设置为 auto */
 }
-
 .no-triangle::after {
   display: none;
 }
-
-.xlcdList {
-  color: #d7adfe;
-  width: 100%;
-  height: 100%;
-  transition: background-color 0.3s ease;
-  padding: 2px 0;
-}
-
-.xlcdList:hover {
-  color: #805ea0;
-}
-
-.shangc {
-  display: flex;
-}
-
 .custom-dropdown .el-dropdown-item:hover {
   background-color: #478068;
   /* 粉色背景 */
   color: white;
-  /* 鼠标悬停时文字变为白色 */
+  /* 鼠标停时文字变为白色 */
 }
 
 /* .custom-dropdowna li{
@@ -728,6 +881,24 @@ onMounted(() => {
   /* 确保下拉框在其他元素之上 */
   margin-top: 5px;
 }
+
+.xlcdList {
+  color: #d7adfe;
+  width: 100%;
+  height: 100%;
+  transition: background-color 0.3s ease;
+  padding: 2px 0;
+}
+
+.xlcdList:hover {
+  color: #805ea0;
+}
+
+.shangc {
+  display: flex;
+}
+
+
 
 .dropdown-item {
   padding: 10px 15px;
@@ -869,7 +1040,86 @@ onMounted(() => {
   font-weight: 500;
 }
 
+.share-content {
+  padding: 20px 30px;
+}
 
+.dialog-footer {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  padding-left: 30px;
+}
 
+:deep(.el-dialog) {
+  border-radius: 8px;
+  background-color: #fff !important;
+}
+
+:deep(.el-dialog__header) {
+  padding: 20px;
+  border-bottom: 1px solid #f0f0f0;
+  background-color: #fff;
+}
+
+:deep(.el-dialog__body) {
+  background-color: #fff;
+  padding: 0;
+}
+
+:deep(.el-dialog__footer) {
+  background-color: #fff;
+  padding: 10px 0;
+}
+
+:deep(.el-form-item) {
+  margin-bottom: 20px;
+}
+
+:deep(.el-button--primary) {
+  background-color: #626aef;
+  border-color: #626aef;
+}
+
+:deep(.el-button--primary:hover) {
+  background-color: #4c51bf;
+  border-color: #4c51bf;
+}
+
+:deep(.el-date-picker) {
+  width: 100%;
+}
+
+.success-content {
+  padding: 20px;
+}
+
+.share-info-item {
+  margin-bottom: 20px;
+}
+
+.share-info-item .label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.share-input {
+  width: 100%;
+}
+
+:deep(.el-input-group__append) {
+  padding: 0;
+}
+
+:deep(.el-input-group__append button) {
+  border: none;
+  margin: 0;
+  height: 100%;
+}
+
+:deep(.el-dialog__body) {
+  padding-top: 10px;
+}
 
 </style>
