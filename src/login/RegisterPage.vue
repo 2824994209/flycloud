@@ -231,7 +231,7 @@ const submitRegister = async () => {
   }
 
   try {
-    const res = await axios.post(`${backendAddress}/api/v1/user/register`, {
+    const res = await axios.post(`${backendAddress}/api/v1/public/register`, {
       email: registerForm.email,
       username: registerForm.username,
       password: registerForm.password,

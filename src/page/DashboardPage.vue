@@ -348,6 +348,18 @@ const open1 = (row) => {
 // dropdown
 // 下载
 const dropdownDownload = (row) => {
+  // 检查是否为文件夹
+  if (row.type === 'folder') {
+    ElNotification({
+      title: '提示',
+      message: '文件夹不允许下载',
+      type: 'warning',
+      duration: 2000,
+      showClose: false
+    });
+    return;
+  }
+
   axiosInstance.get(`${backendAddress}/api/v1/fs/file/${row.id}`, {
     headers: {
       'Authorization': `Bearer ${token.value}`
@@ -375,7 +387,9 @@ const dropdownDownload = (row) => {
     ElNotification({
       title: '错误',
       message: '文件下载失败',
-      type: 'error'
+      type: 'error',
+      duration: 2000,
+      showClose: false
     });
   });
 };
@@ -674,9 +688,6 @@ onMounted(() => {
 }
 
 .shangc {
-  /* padding: 10px 0;
-  margin: 5px 0; */
-  /* 确保没有 overflow: hidden; */
   display: flex;
 }
 
@@ -839,9 +850,7 @@ onMounted(() => {
 
 }
 
-.breadcrumb-item {
-  cursor: pointer;
-}
+
 
 .details-content {
   padding: 10px;
@@ -858,5 +867,8 @@ onMounted(() => {
   color: #606266;
   font-weight: 500;
 }
+
+
+
 
 </style>

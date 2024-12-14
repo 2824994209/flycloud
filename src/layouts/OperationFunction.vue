@@ -17,7 +17,16 @@
             </el-tooltip>
          </BasicSetting> -->
 
-
+        <!-- 上传分享文件 -->
+        <UploadShare>
+            <el-tooltip class="box-item" content="upload share 上传分享文件" placement="left">
+                <div class="dropdown-item">
+                    <el-icon size="23px">
+                        <Share />
+                    </el-icon>
+                </div>
+            </el-tooltip>
+        </UploadShare>
         <!-- //上传文件 -->
         <UploadFile>
             <el-tooltip class="box-item" content="upload上传" placement="left">
@@ -29,7 +38,7 @@
             </el-tooltip>
         </UploadFile>
         <!-- 创建文件 -->
-        <CreateFile>
+        <!-- <CreateFile>
             <el-tooltip class="box-item" content="create file 创建文件" placement="left">
                 <div class="dropdown-item">
                     <el-icon size="23px">
@@ -37,7 +46,7 @@
                     </el-icon>
                 </div>
             </el-tooltip>
-        </CreateFile>
+        </CreateFile> -->
 
         <!-- 创建文件夹 -->
         <CreateFolder>
@@ -64,9 +73,10 @@
 <script setup>
 import { ref } from 'vue'
 import UploadFile from '../util/UploadFile.vue';
-import CreateFile from '../util/CreateFile.vue';
+// import CreateFile from '../util/CreateFile.vue';
 import CreateFolder from '../util/CreateFolder.vue';
 import LogoutPage from '../util/LogoutPage.vue';
+import UploadShare from '../util/UploadShare.vue';
 
 const isDropdownVisible = ref(false);
 

@@ -65,6 +65,13 @@
       </el-form>
     </div>
   </div>
+  <!-- 添加全屏loading -->
+  <div class="fullscreen-loading" v-if="isLoading">
+    <div class="loading-content">
+      <el-icon class="loading-icon"><Loading /></el-icon>
+      <span>登录中，请稍候...</span>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -86,7 +93,6 @@ const loginForm = reactive({
   captcha: '',
   captchaId: ''
 })
-
 // 表单验证规则
 const rules = {
   email: [
@@ -301,4 +307,44 @@ onMounted(() => {
 :deep(.el-input__wrapper.is-focus) {
   box-shadow: 0 0 0 1px #626aef !important;
 }
+
+/* 添加loading相关样式 */
+.fullscreen-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+.loading-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .loading-icon {
+      font-size: 40px;
+      color: #626aef;
+      animation: rotating 2s linear infinite;
+    }
+
+    .loading-content span {
+      color: #606266;
+      font-size: 14px;
+    }
+
+    @keyframes rotating {
+      0% {
+        transform: rotate(0);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
 </style>
