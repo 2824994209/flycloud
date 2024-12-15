@@ -167,6 +167,7 @@ const submitLogin = async () => {
       
       router.push('/user/personal')
     }else{
+      refreshCaptcha()
       ElNotification({
         duration: 2000,
         title: 'error',

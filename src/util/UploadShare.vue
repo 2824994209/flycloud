@@ -72,7 +72,7 @@ const handleUpload = async () => {
     } else {
       ElNotification({
         title: '错误',
-        message: res.data.message || '导入失败',
+        message: res.data.msg || '导入失败',
         type: 'error'
       })
     }
@@ -80,7 +80,7 @@ const handleUpload = async () => {
     console.error('导入失败:', error)
     ElNotification({
       title: '错误',
-      message: '导入失败',
+      message: error.data.msg,
       type: 'error'
     })
   }

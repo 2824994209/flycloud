@@ -16,8 +16,16 @@
                 </div>
             </el-tooltip>
          </BasicSetting> -->
-
-        <!-- 上传分享文件 -->
+         <MergeShare>
+            <el-tooltip class="box-item" content="merge share 合并分享文件" placement="left">
+                <div class="dropdown-item">
+                    <el-icon size="23px">
+                        <StarFilled />
+                    </el-icon>
+                </div>
+            </el-tooltip>
+        </MergeShare>
+        <!-- code上传分享文件 -->
         <UploadShare>
             <el-tooltip class="box-item" content="upload share 上传分享文件" placement="left">
                 <div class="dropdown-item">
@@ -77,6 +85,7 @@ import UploadFile from '../util/UploadFile.vue';
 import CreateFolder from '../util/CreateFolder.vue';
 import LogoutPage from '../util/LogoutPage.vue';
 import UploadShare from '../util/UploadShare.vue';
+import MergeShare from '../util/MergeShare.vue';
 
 const isDropdownVisible = ref(false);
 

@@ -88,6 +88,7 @@
           @click="handleBreadcrumbClick(item)"
           class="breadcrumb-item"
         >
+          <!-- <a href="#">{{ item.name }}</a> -->
           {{ item.name }}
         </el-breadcrumb-item>
       </el-breadcrumb>
@@ -100,12 +101,56 @@
         :data="tableData" 
         style="width: 100%; height: 500px;" 
         :row-style="{ height: rowHeight + 'px' }"
+        @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55" />
         <el-table-column label="Name">
           <template #default="{ row }">
-            <el-icon>
-              <component :is="row.type === 'folder' ? Folder : Document" />
+            <el-icon size="20" style="margin-bottom: 3px; vertical-align: middle;">
+              <template v-if="row.type === 'folder'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                  <path fill="#9873d9" d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2m0 12H4V6h5.17l2 2H20z"/>
+                </svg>
+              </template>
+              <template v-else>
+                <!-- 根据文件类型显示不同图标 -->
+      
+                <template v-if="row.file_type === 'doc'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                    <path fill="#4B8BF4" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-3.5 14H14v-4h-4v4H8.5v-7h2v2h3v-2h2v7z"/>
+                  </svg>
+                </template>
+                <template v-else-if="row.file_type === 'json'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                    <path fill="#FFA000" d="M5 3h2v2H5v5a2 2 0 0 1-2 2a2 2 0 0 1 2 2v5h2v2H5c-1.07-.27-2-.9-2-2v-4a2 2 0 0 0-2-2H0v-2h1a2 2 0 0 0 2-2V5a2 2 0 0 1 2-2m14 0a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h1v2h-1a2 2 0 0 0-2 2v4a2 2 0 0 1-2 2h-2v-2h2v-5a2 2 0 0 1 2-2a2 2 0 0 1-2-2V5h-2V3h2m-7 12a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1a1 1 0 0 1 1 1m-4 0a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1a1 1 0 0 1 1 1m8 0a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1a1 1 0 0 1 1 1z"/>
+                  </svg>
+                </template>
+                <template v-else-if="row.file_type === 'txt'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                    <path fill="#70B603" d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
+                  </svg>
+                </template>
+                <template v-else-if="row.file_type === 'exe'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                    <path fill="#F7B500" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14h-2v-4H8v-2h2V7h2v4h2v2h-2v4z"/>
+                  </svg>
+                </template>
+                <template v-else-if="row.file_type === 'md'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                    <path fill="#7952B3" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5h3V7h4v5h3l-5 5z"/>
+                  </svg>
+                </template>
+                <template v-else-if="row.file_type === 'yaml'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                    <path fill="#E34C26" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 12H7v-2h10v2zm0-4H7V9h10v2z"/>
+                  </svg>
+                </template>
+                <template v-else>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                    <path fill="#909399" d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
+                  </svg>
+                </template>
+              </template>
             </el-icon>
             <a class="el-table-column-a" @click="openFolder(row)" href="#">{{ row.name || row.file_name }}</a>
           </template>
@@ -332,7 +377,7 @@ import { Download } from '@element-plus/icons';
 import axiosInstance from 'axios';
 import { useCookies } from 'vue3-cookies';
 const { cookies } = useCookies();
-import { Folder, Document } from '@element-plus/icons';
+// import { Folder, Document } from '@element-plus/icons';
 const backendAddress = inject('backendAddress');
 import OperationFunction from '@/layouts/OperationFunction.vue';
 // import { ElNotification } from 'element-plus';
@@ -568,6 +613,7 @@ const requestsRootfolder = async (token) => {
     return;
   }
   try {
+    loading.value = true;
     const res = await axiosInstance.get(`${backendAddress}/api/v1/fs/folder/${rootfolderid}`, {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -601,6 +647,8 @@ const requestsRootfolder = async (token) => {
       type: 'error',
       showClose: false
     });
+  }finally{
+    loading.value = false;
   }
 };
 
@@ -778,6 +826,28 @@ const copyText = async (text) => {
     })
   }
 }
+
+// 添加选中行的数据
+const selectedRows = ref([]);
+
+// 创建更新函数
+const updateSelectedFiles = (selection) => {
+  selectedRows.value = selection;
+  // console.log(selectedRows.value)
+};
+
+// 处理选择变化
+const handleSelectionChange = (selection) => {
+  selectedRows.value = selection;
+  // 更新到provide中
+  updateSelectedFiles(selection);
+};
+
+// 提供给其他组件使用
+provide('selectedFiles', selectedRows);
+provide('updateSelectedFiles', (selection) => {
+  selectedRows.value = selection;
+});
 
 onMounted(() => {
   console.log('DashboardPage')
@@ -1121,5 +1191,22 @@ onMounted(() => {
 :deep(.el-dialog__body) {
   padding-top: 10px;
 }
+/* 添加面包屑样式 */
+.breadcrumb-item {
+  cursor: pointer; /* 鼠标变成小手 */
+  color: #606266; /* 默认颜色 */
+  transition: color 0.3s; /* 颜色过渡效果 */
+}
 
+/* 最后一个项目可能需要特殊样式 */
+.el-breadcrumb__inner {
+  color: #606266; /* 默认颜色 */
+  cursor: pointer !important;
+}
+
+
+.el-breadcrumb__item:last-child .breadcrumb-item:hover {
+  color: #303133;
+  text-decoration: none;
+}
 </style>
