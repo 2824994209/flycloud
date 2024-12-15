@@ -71,7 +71,7 @@
             <el-tooltip class="box-item" content="logout 退出登录" placement="left">
                 <div class="dropdown-item">
                     <el-icon size="23px">
-                        <Close />
+                        <SwitchButton />
                     </el-icon>
                 </div>
             </el-tooltip>
@@ -86,7 +86,6 @@ import CreateFolder from '../util/CreateFolder.vue';
 import LogoutPage from '../util/LogoutPage.vue';
 import UploadShare from '../util/UploadShare.vue';
 import MergeShare from '../util/MergeShare.vue';
-
 const isDropdownVisible = ref(false);
 
 const toggleDropdown = () => {

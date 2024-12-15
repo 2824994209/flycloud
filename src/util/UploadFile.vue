@@ -111,6 +111,14 @@ export default {
           },
         });
         onSuccess(response.data);
+        if(response.data.code !== 200) {
+          ElNotification({
+            title: '上传失败',
+            message: `文件 ${file.name} 上传失败: ${response.data.msg || '未知错误'}`,
+            type: 'error',
+            duration: 3000,
+          }) 
+        }
       } catch (error) {
         onError(error);
       }

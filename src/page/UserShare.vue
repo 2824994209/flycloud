@@ -3,30 +3,31 @@
     <div>
       <span class="header-title">分享列表</span>
     </div>
-    <div class="shangc"></div>
+    <div class="shangc"></div>  
     <div class="table-container">
-      <el-table :data="shareList" style="width: 100%; height: 510px;" v-loading="loading"
+      <el-table :data="shareList" style="width: 100%; height: calc(100vh - 190px);" v-loading="loading"
         element-loading-text="Loading..." element-loading-background="rgba(255, 255, 255, 1)">
         <el-table-column type="selection" width="55" />
-        <el-table-column prop="code" label="分享码"  />
-        <el-table-column prop="expire_time" label="过期时间" width="180">
+        <el-table-column prop="code" label="分享码" min-width="100" />
+        <el-table-column prop="expire_time" label="过期时间" min-width="160" >
           <template #default="scope">
             {{ formatDate(scope.row.expire_time) }}
           </template>
         </el-table-column>
-        <el-table-column label="下载" width="60">
+        <el-table-column label="下载" min-width="60">
           <template #default="scope">
             {{ scope.row.download_num }}/{{ scope.row.max_download }}
           </template>
         </el-table-column>
-        <el-table-column prop="created_at" label="创建时间" width="180">
+        <el-table-column prop="created_at" label="创建时间" min-width="160" >
           <template #default="scope">
             {{ formatDate(scope.row.created_at) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="180">
+        <el-table-column label="操作" width="140">
           <template #default="scope">
             <el-button size="small" @click="copyShareLink(scope.row.code)" color="#626aef" plain>复制</el-button>
+            <el-divider direction="vertical" />
             <!-- <el-button size="small" @click="describeShare(scope.row)" color="#626aef">详细</el-button> -->
             <el-button size="small" type="danger" @click="deleteShare(scope.row.id)">删除</el-button>
           </template>
@@ -34,7 +35,6 @@
       </el-table>
     </div>
   </MainLayout>
-  <OperationFunction />
   <el-dialog v-model="dialogVisible" title="分享详情" width="50%">
     <div class="share-detail">
       <div class="detail-item">
@@ -79,9 +79,7 @@
 import { ref, onMounted, inject } from 'vue';
 import { ElNotification } from 'element-plus';
 import axios from 'axios';
-import OperationFunction from '@/layouts/OperationFunction.vue';
 import MainLayout from '@/layouts/MainLayout.vue';
-import { Document, Folder } from '@element-plus/icons-vue';
 const backendAddress = inject('backendAddress');
 import { useCookies } from 'vue3-cookies';
 const { cookies } = useCookies();

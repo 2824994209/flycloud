@@ -61,25 +61,25 @@
               <el-icon>
                 <MostlyCloudy />
               </el-icon>
-              <template #title>personal</template>
+              <template #title>个人空间</template>
             </el-menu-item>
             <el-menu-item index="/user/share">
               <el-icon>
                 <MoonNight />
               </el-icon>
-              <template #title>share</template>
+              <template #title>分享列表</template>
             </el-menu-item>
             <el-menu-item index="/user/date">
               <el-icon>
                 <Calendar />
               </el-icon>
-              <template #title>timeline</template>
+              <template #title>最近更新</template>
             </el-menu-item>
             <el-menu-item index="/user/setting">
               <el-icon>
                 <setting />
               </el-icon>
-              <template #title>setting</template>
+              <template #title>基本设置</template>
             </el-menu-item>
           </el-menu>
         </el-aside>
@@ -469,4 +469,22 @@ a:hover {
   min-width: 300px !important;
   max-width: 400px !important;
 }
+
+/* 选中状态下的图标颜色 */
+.el-menu-item.is-active .el-icon {
+  color: #9873d9 !important;
+}
+
+/* 选中状态下的文字颜色 */
+.el-menu-item.is-active {
+  color: #9873d9 !important;
+}
+
+
+/* 选中状态的背景色 */
+.el-menu-item.is-active {
+  background-color: #f0f2f5 !important;
+}
+
+
 </style>

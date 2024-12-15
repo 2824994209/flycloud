@@ -41,113 +41,87 @@
 
           </button>
         </div>
-        <!-- <button class="settings-button">
-					<el-dropdown trigger="click" :hide-on-click="false">
-						<span class="el-dropdown-link">
-							<el-icon size="20px">
-								<Setting />
-							</el-icon>
-						</span>
-						<template #dropdown>
-							<el-dropdown-menu class="custom-dropdown">
-								<el-dropdown-item command="a">
-									<template #default>
-										Items per page
-										<div class="custom-select-container">
-											<select v-model="itemsPerPage" :placeholder="itemsPerPage"
-												class="custom-select">
-												<option value="10">10</option>
-												<option value="20">20</option>
-												<option value="50">50</option>
-												<option value="100">100</option>
-											</select>
-										</div>
-									</template>
-</el-dropdown-item>
-</el-dropdown-menu>
-</template>
-</el-dropdown>
-
-</button> -->
+        
       </div>
 
     </div>
     <div class="shangc">
-    <!-- 面包屑 -->
+      <!-- 面包屑 -->
       <el-breadcrumb separator="/">
-        <el-breadcrumb-item
-          class="breadcrumb-item"
-          @click="goToHome"
-        >
+        <el-breadcrumb-item class="breadcrumb-item" @click="goToHome">
           <!-- 首页 -->
-           <span >&nbsp;</span>
+          <span>&nbsp;</span>
         </el-breadcrumb-item>
-        <el-breadcrumb-item
-          v-for="(item, index) in breadcrumbs"
-          :key="index"
-          @click="handleBreadcrumbClick(item)"
-          class="breadcrumb-item"
-        >
+        <el-breadcrumb-item v-for="(item, index) in breadcrumbs" :key="index" @click="handleBreadcrumbClick(item)"
+          class="breadcrumb-item">
           <!-- <a href="#">{{ item.name }}</a> -->
           {{ item.name }}
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <div ref="tableContainer" class="table-container">
-      <el-table 
-        v-loading="loading"
-        element-loading-text="Loading..."
-        element-loading-background="rgba(255, 255, 255, 1)"
-        :data="tableData" 
-        style="width: 100%; height: 500px;" 
-        :row-style="{ height: rowHeight + 'px' }"
-        @selection-change="handleSelectionChange"
-      >
+      <el-table v-loading="loading" element-loading-text="Loading..."
+        element-loading-background="rgba(255, 255, 255, 1)" :data="tableData" style="width: 100%; height: calc(100vh - 200px);"
+        :row-style="{ height: rowHeight + 'px' }" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" />
-        <el-table-column label="Name">
+        <el-table-column label="Name" min-width="200"   show-overflow-tooltip>
           <template #default="{ row }">
             <el-icon size="20" style="margin-bottom: 3px; vertical-align: middle;">
               <template v-if="row.type === 'folder'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-                  <path fill="#9873d9" d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2m0 12H4V6h5.17l2 2H20z"/>
+                  <path fill="#9873d9"
+                    d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2m0 12H4V6h5.17l2 2H20z" />
                 </svg>
               </template>
               <template v-else>
                 <!-- 根据文件类型显示不同图标 -->
-      
+
                 <template v-if="row.file_type === 'doc'">
                   <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-                    <path fill="#4B8BF4" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-3.5 14H14v-4h-4v4H8.5v-7h2v2h3v-2h2v7z"/>
+                    <path fill="#4B8BF4"
+                      d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-3.5 14H14v-4h-4v4H8.5v-7h2v2h3v-2h2v7z" />
+                  </svg>
+                </template>
+                <template v-else-if="row.file_type === 'zip'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                    <path fill="#FFA000"
+                      d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2M18 12h-2v2h2v2h-2v2h-2v-2h2v-2h-2v-2h2v-2h-2V8h2v2h2z" />
                   </svg>
                 </template>
                 <template v-else-if="row.file_type === 'json'">
                   <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-                    <path fill="#FFA000" d="M5 3h2v2H5v5a2 2 0 0 1-2 2a2 2 0 0 1 2 2v5h2v2H5c-1.07-.27-2-.9-2-2v-4a2 2 0 0 0-2-2H0v-2h1a2 2 0 0 0 2-2V5a2 2 0 0 1 2-2m14 0a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h1v2h-1a2 2 0 0 0-2 2v4a2 2 0 0 1-2 2h-2v-2h2v-5a2 2 0 0 1 2-2a2 2 0 0 1-2-2V5h-2V3h2m-7 12a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1a1 1 0 0 1 1 1m-4 0a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1a1 1 0 0 1 1 1m8 0a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1a1 1 0 0 1 1 1z"/>
+                    <path fill="#FFA000"
+                      d="M5 3h2v2H5v5a2 2 0 0 1-2 2a2 2 0 0 1 2 2v5h2v2H5c-1.07-.27-2-.9-2-2v-4a2 2 0 0 0-2-2H0v-2h1a2 2 0 0 0 2-2V5a2 2 0 0 1 2-2m14 0a2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h1v2h-1a2 2 0 0 0-2 2v4a2 2 0 0 1-2 2h-2v-2h2v-5a2 2 0 0 1 2-2a2 2 0 0 1-2-2V5h-2V3h2m-7 12a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1a1 1 0 0 1 1 1m-4 0a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1a1 1 0 0 1 1 1m8 0a1 1 0 0 1-1 1a1 1 0 0 1-1-1a1 1 0 0 1 1-1a1 1 0 0 1 1 1z" />
                   </svg>
                 </template>
                 <template v-else-if="row.file_type === 'txt'">
                   <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-                    <path fill="#70B603" d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
+                    <path fill="#70B603"
+                      d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z" />
                   </svg>
                 </template>
                 <template v-else-if="row.file_type === 'exe'">
                   <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-                    <path fill="#F7B500" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14h-2v-4H8v-2h2V7h2v4h2v2h-2v4z"/>
+                    <path fill="#F7B500"
+                      d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14h-2v-4H8v-2h2V7h2v4h2v2h-2v4z" />
                   </svg>
                 </template>
                 <template v-else-if="row.file_type === 'md'">
                   <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-                    <path fill="#7952B3" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5h3V7h4v5h3l-5 5z"/>
+                    <path fill="#7952B3"
+                      d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5h3V7h4v5h3l-5 5z" />
                   </svg>
                 </template>
                 <template v-else-if="row.file_type === 'yaml'">
                   <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-                    <path fill="#E34C26" d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 12H7v-2h10v2zm0-4H7V9h10v2z"/>
+                    <path fill="#E34C26"
+                      d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 12H7v-2h10v2zm0-4H7V9h10v2z" />
                   </svg>
                 </template>
                 <template v-else>
                   <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-                    <path fill="#909399" d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/>
+                    <path fill="#909399"
+                      d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z" />
                   </svg>
                 </template>
               </template>
@@ -155,12 +129,12 @@
             <a class="el-table-column-a" @click="openFolder(row)" href="#">{{ row.name || row.file_name }}</a>
           </template>
         </el-table-column>
-        <el-table-column label="Size" width="130">
+        <el-table-column label="Size" min-width="90">
           <template #default="{ row }">
             <span v-if="row.type === 'file'">{{ formatFileSize(row.size) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="Modified" width="130">
+        <el-table-column label="Modified" min-width="100">
           <template #default="{ row }">
             <el-tooltip class="item" :content="formatTimestamp(row.updated_at)" placement="top">
               <span class="tooltip-text">{{ row.modifiedTimeElapsed }}</span>
@@ -168,74 +142,40 @@
           </template>
         </el-table-column>
 
-        <el-table-column property="actions" label="Actions" width="90">
+        <el-table-column property="actions" label="操作" width="200" >
           <template #default="{ row }">
-            <div style="display: flex;">
-              <!-- <button class="actions-icon-button" @click="open1(row.file_name||row.name)">
-                <el-icon>
-                  <Link />
-                </el-icon>
-
-              </button> -->
-              <button class="actions-icon-button" @click="showMore(row.name)">
-                <el-dropdown trigger="click" placement="bottom-end">
-                  <span class="el-dropdown-link">
-                    <el-icon>
-                      <More />
-                    </el-icon>
-                  </span>
-                  <template #dropdown>
-                    <el-dropdown-menu class="custom-dropdowna">
-                      <el-dropdown-item>
-                        <template #default>
-                          <div class="xlcdList" @click="Sharecontent(row)">
-                            <el-icon>
-                              <Share />
-                            </el-icon>
-                            <!-- 分享 -->
-                            Share
-                          </div>
-
-                        </template>
-                      </el-dropdown-item>
-                      <el-dropdown-item>
-                        <template #default>
-                          <div class="xlcdList" @click="dropdownDownload(row)">
-                            <el-icon>
-                              <Download />
-                            </el-icon>
-                            <!-- 下载 -->
-                            Download
-                          </div>
-
-                        </template>
-                      </el-dropdown-item>
-                      <el-dropdown-item>
-                        <template #default>
-                          <div class="xlcdList" @click="openDelete(row)">
-                            <el-icon>
-                              <Delete />
-                            </el-icon>
-                            Delete
-                          </div>
-
-                        </template>
-                      </el-dropdown-item>
-                      <el-dropdown-item>
-                        <template #default>
-                          <div class="xlcdList" @click="showDetails(row)">
-                            <el-icon>
-                              <InfoFilled />
-                            </el-icon>
-                            Details
-                          </div>
-
-                        </template>
-                      </el-dropdown-item>
-                    </el-dropdown-menu>
-                  </template>
-                </el-dropdown>
-              </button>
+            <div class="action-buttons">
+              <el-button 
+                @click="Sharecontent(row)"
+                class="action-btn"
+                type="primary"
+                plain
+                color="#626aef"
+                size="small">
+                分享
+              </el-button>
+              <el-divider direction="vertical" />
+              
+              <el-button
+                @click="dropdownDownload(row)"
+                class="action-btn"
+                
+                color="#626aef"
+                type="primary"
+                size="small">
+                下载
+              </el-button>
+              <el-divider direction="vertical" />
+              
+              <el-button
+                @click="openDelete(row)"
+                class="action-btn"
+                
+                
+                type="danger"
+                size="small">
+                删除
+              </el-button>
             </div>
           </template>
         </el-table-column>
@@ -243,30 +183,29 @@
       <!-- <div v-if="tableData.length === 0" class="no-data-message">No Data</div> -->
     </div>
   </MainLayout>
-  <el-dialog 
-    v-model="dropdownDelete" 
-    :title="dropdownSelecteDelete?.type === 'folder' ? '删除文件夹' : '删除文件'" 
-    width="500" 
-    align-center
-  >
-    是否删除{{ dropdownSelecteDelete?.type === 'folder' ? dropdownSelecteDelete.name : dropdownSelecteDelete.file_name }}
+  <el-dialog v-model="dropdownDelete" :title="'确定删除'" width="500px" >
+    <div class="delete-confirm-content">
+      <div class="warning-icon-circle">
+        <el-icon class="warning-icon"><Warning /></el-icon>
+      </div>
+      <span class="delete-text">
+        删除{{ dropdownSelecteDelete?.type === 'folder' ? dropdownSelecteDelete.name : dropdownSelecteDelete.file_name }}？
+      </span>
+    </div>
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="dropdownDelete = false" color="#626aef" plain>取消</el-button>
-        <el-button type="primary" @click="deleteSuccessfully" color="#626aef">
+        <el-button type="primary" @click="deleteJudgment()" color="#626aef">
           确定
         </el-button>
+        <el-button @click="dropdownDelete = false" color="#626aef" plain>取消</el-button>
+
       </div>
     </template>
   </el-dialog>
   <OperationFunction />
 
   <!-- 添加详情弹窗 -->
-  <el-dialog 
-    v-model="detailsVisible" 
-    :title="detailsData.type === 'folder' ? '文件夹详情' : '文件详情'"
-    width="400px"
-  >
+  <!-- <el-dialog v-model="detailsVisible" :title="detailsData.type === 'folder' ? '文件夹详情' : '文件详情'" width="400px">
     <div class="details-content">
       <div class="detail-item">
         <span class="label">名称：</span>
@@ -301,32 +240,18 @@
         </div>
       </template>
     </div>
-  </el-dialog>
+  </el-dialog> -->
 
   <!-- 添加分享弹窗 -->
-  <el-dialog
-    v-model="shareDialogVisible"
-    title="分享设置"
-    width="500px"
-  >
+  <el-dialog v-model="shareDialogVisible" title="分享设置" width="500px">
     <div class="share-content">
       <el-form :model="shareForm" label-width="120px">
         <el-form-item label="过期时间">
-          <el-date-picker
-            v-model="shareForm.expireTime"
-            type="date"
-            placeholder="选择过期日期"
-            format="YYYY-MM-DD"
-            value-format="YYYY-MM-DD"
-            :disabledDate="disabledDate"
-          />
+          <el-date-picker v-model="shareForm.expireTime" type="date" placeholder="选择过期日期" format="YYYY-MM-DD"
+            value-format="YYYY-MM-DD" :disabledDate="disabledDate" />
         </el-form-item>
         <el-form-item label="最大下载次数">
-          <el-input-number 
-            v-model="shareForm.maxDownloads"
-            :min="1"
-            :max="999"
-          />
+          <el-input-number v-model="shareForm.maxDownloads" :min="1" :max="999" />
         </el-form-item>
       </el-form>
     </div>
@@ -339,31 +264,16 @@
   </el-dialog>
 
   <!-- 新增分享成功弹窗 -->
-  <el-dialog
-    v-model="shareSuccessVisible"
-    title="分享成功"
-    width="500px"
-    :show-close="true"
-  >
+  <el-dialog v-model="shareSuccessVisible" title="分享成功" width="500px" :show-close="true">
     <div class="success-content">
       <div class="share-info-item">
         <span class="label">下载链接：</span>
-        <el-input
-          v-model="shareLink"
-          readonly
-          class="share-input"
-          @focus="copyText(shareLink)"
-        >
+        <el-input v-model="shareLink" readonly class="share-input" @focus="copyText(shareLink)">
         </el-input>
       </div>
       <div class="share-info-item">
         <span class="label">分享码：</span>
-        <el-input
-          v-model="shareCode"
-          readonly
-          class="share-input"
-          @focus="copyText(shareCode)"
-        >
+        <el-input v-model="shareCode" readonly class="share-input" @focus="copyText(shareCode)">
         </el-input>
       </div>
     </div>
@@ -373,32 +283,32 @@
 import MainLayout from '@/layouts/MainLayout.vue';
 import { ref, onMounted, inject, provide } from 'vue'
 import { ElNotification } from 'element-plus'
-import { Download } from '@element-plus/icons';
+// import { Download } from '@element-plus/icons';
 import axiosInstance from 'axios';
 import { useCookies } from 'vue3-cookies';
 const { cookies } = useCookies();
 // import { Folder, Document } from '@element-plus/icons';
 const backendAddress = inject('backendAddress');
 import OperationFunction from '@/layouts/OperationFunction.vue';
-// import { ElNotification } from 'element-plus';
 // import UploadFile from '@/util/UploadFile.vue';
 // import HelloWorld from '@/components/HelloWorld.vue';
+import { Warning } from '@element-plus/icons-vue'
 
 const receivedData = ref('');
 function calculateTimeElapsed(modifiedTimestamp) {
   if (!modifiedTimestamp) {
     return 'Unknown';
   }
-  
+
   const currentTimestamp = Date.now();
   const diff = currentTimestamp - new Date(modifiedTimestamp).getTime();
-  
+
   if (isNaN(diff)) {
     return 'Unknown';
   }
-  
+
   const positiveDiff = Math.max(0, diff);
-  
+
   if (positiveDiff < 1000 * 60) {
     const seconds = Math.floor(positiveDiff / 1000);
     return `${seconds} second${seconds !== 1 ? 's' : ''} ago`;
@@ -436,7 +346,7 @@ const handleUpdate = (data) => {
   //处理搜索框传过来的数据
   receivedData.value = data;
   console.log("接收到的数据：" + receivedData.value)
-  fetchFolderData(receivedData.value,token.value)
+  fetchFolderData(receivedData.value, token.value)
 };
 
 //数据存放
@@ -445,9 +355,9 @@ const tableData = ref([]);
 const breadcrumbs = ref([]);
 
 const rowHeight = ref(30); // 默认行高
-const showMore = (row) => {
-  console.log(row)
-};
+// const showMore = (row) => {
+//   console.log(row)
+// };
 
 // const open1 = (row) => {
 //   ElNotification({
@@ -477,20 +387,20 @@ const dropdownDownload = (row) => {
       'Authorization': `Bearer ${token.value}`
     },
     responseType: 'blob'  // 设置响应类型为blob
-  }).then(response => {    
+  }).then(response => {
     // 创建blob链接
-    const blob = new Blob([response.data], { 
-      type: response.headers['content-type'] 
+    const blob = new Blob([response.data], {
+      type: response.headers['content-type']
     });
     const url = window.URL.createObjectURL(blob);
-    
+
     // 创建一个临时的a标签来触发下载
     const link = document.createElement('a');
     link.href = url;
     link.download = row.file_name; // 使用文件原始名称
     document.body.appendChild(link);
     link.click();
-    
+
     // 清理
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
@@ -521,44 +431,90 @@ const openDelete = (row) => {
 }
 
 const token = ref(cookies.get('az'))
-const deleteSuccessfully = () => {
+const deleteJudgment = () => {
+  if (dropdownSelecteDelete.value.type === 'file') {
+    deletefile()
+  }else{
+    deletefolder()
+  }
+}
+const deletefolder = () => {
   dropdownDelete.value = false;
-  axiosInstance.delete(`${backendAddress}/api/v1/fs/file/${dropdownSelecteDelete.value.id}`, {
+  axiosInstance.delete(`${backendAddress}/api/v1/fs/folder/${dropdownSelecteDelete.value.id}`, {
     headers: {
       'Authorization': `Bearer ${token.value}`
     }
   })
-  .then(res => {
-    if (res.data.code === 200) {
-      //刷新
-      fetchFolderData(cookies.get('currentFolderId'),token.value)
+    .then(res => {
+      if (res.data.code === 200) {
+        //刷新
+        fetchFolderData(cookies.get('currentFolderId'), token.value)
+        ElNotification({
+          duration: 2000,
+          title: '',
+          message: '删除文件夹成功',
+          type: 'success',
+          showClose: false
+        });
+      } else if (res.data.code === 500) {
+        ElNotification({
+          duration: 2000,
+          title: '',
+          message: "删除文件夹失败",
+          type: 'error',
+          showClose: false
+        });
+      }
+    })
+    .catch(error => {
+      console.log(error)
       ElNotification({
-        duration: 2000,
-        title: '',
-        message: '删除文件成功',
-        type: 'success',
-        showClose: false
-      });
-    }else if(res.data.code === 500){
-      ElNotification({
-        duration: 2000,
-        title: '',
-        message: "文件删除失败",
-        type: 'error',
-        showClose: false
-      });
-    }
-  })
-  .catch(error => {
-    console.log(error)
-    ElNotification({
         duration: 2000,
         title: '',
         message: '删除文件失败',
         type: 'error',
         showClose: false
       });
-  });
+    });
+}
+const deletefile = () => {
+  dropdownDelete.value = false;
+  axiosInstance.delete(`${backendAddress}/api/v1/fs/file/${dropdownSelecteDelete.value.id}`, {
+    headers: {
+      'Authorization': `Bearer ${token.value}`
+    }
+  })
+    .then(res => {
+      if (res.data.code === 200) {
+        //刷新
+        fetchFolderData(cookies.get('currentFolderId'), token.value)
+        ElNotification({
+          duration: 2000,
+          title: '',
+          message: '删除文件成功',
+          type: 'success',
+          showClose: false
+        });
+      } else if (res.data.code === 500) {
+        ElNotification({
+          duration: 2000,
+          title: '',
+          message: "文件删除失败",
+          type: 'error',
+          showClose: false
+        });
+      }
+    })
+    .catch(error => {
+      console.log(error)
+      ElNotification({
+        duration: 2000,
+        title: '',
+        message: '删除文件失败',
+        type: 'error',
+        showClose: false
+      });
+    });
 }
 const rootfolderid = ref('')
 const loading = ref(false);
@@ -571,7 +527,7 @@ const rootfolder = async (token) => {
       }
     });
     if (res.status === 200) {
-      if(res.data.code === 200){
+      if (res.data.code === 200) {
         rootfolderid.value = res.data.data.rootfolderid;
         cookies.set('rootfolderid', rootfolderid.value, '1d');
         cookies.set('currentFolderId', rootfolderid.value, '1d');
@@ -634,7 +590,7 @@ const requestsRootfolder = async (token) => {
           modifiedTimeElapsed: calculateTimeElapsed(file.updated_at || file.UpdatedAt)
         }))
       ];
-      
+
       breadcrumbs.value = data.breadcrumbs;
       isEmpty.value = tableData.value.length === 0;
     }
@@ -647,15 +603,15 @@ const requestsRootfolder = async (token) => {
       type: 'error',
       showClose: false
     });
-  }finally{
+  } finally {
     loading.value = false;
   }
 };
 
 //更新触发
 
-const upload = () =>{
-  fetchFolderData(cookies.get('currentFolderId'),token.value)
+const upload = () => {
+  fetchFolderData(cookies.get('currentFolderId'), token.value)
 }
 provide('fetchFolderData', upload);
 
@@ -684,7 +640,7 @@ const fetchFolderData = async (folderId, token) => {
           modifiedTimeElapsed: calculateTimeElapsed(file.updated_at || file.UpdatedAt)
         }))
       ];
-      
+
       breadcrumbs.value = data.breadcrumbs;
       isEmpty.value = tableData.value.length === 0;
     }
@@ -705,14 +661,14 @@ const fetchFolderData = async (folderId, token) => {
 const openFolder = (row) => {
   if (row.type === 'folder') {
     // localStorage.setItem('currentFolderId', row.id);
-    cookies.set('currentFolderId',row.id,'1d')
+    cookies.set('currentFolderId', row.id, '1d')
     const token = cookies.get('az')
-    fetchFolderData(row.id,token);
+    fetchFolderData(row.id, token);
   }
 };
 
 const handleBreadcrumbClick = (item) => {
-  cookies.set('currentFolderId', item.id,'1d')
+  cookies.set('currentFolderId', item.id, '1d')
   const token = cookies.get('az');
   fetchFolderData(item.id, token);
 };
@@ -725,19 +681,19 @@ const goToHome = () => {
 };
 
 // 添加详情弹窗相关的响应式变量
-const detailsVisible = ref(false);
-const detailsData = ref({});
+// const detailsVisible = ref(false);
+// const detailsData = ref({});
 
 // 显示详情的方法
-const showDetails = (row) => {
-  detailsData.value = row;
-  detailsVisible.value = true;
-};
+// const showDetails = (row) => {
+//   detailsData.value = row;
+//   detailsVisible.value = true;
+// };
 
 // 分享相关的响应式变量
 const shareDialogVisible = ref(false)
 const shareForm = ref({
-  expireTime: null, 
+  expireTime: null,
   maxDownloads: 0
 })
 const currentShareFile = ref(null)
@@ -747,14 +703,14 @@ const Sharecontent = (row) => {
   currentShareFile.value = row
   shareDialogVisible.value = true
   shareForm.value = {
-    expireTime: '', 
+    expireTime: '',
     maxDownloads: 0
   }
 }
 
 // 处理分享
 const handleShare = () => {
-  if(!shareForm.value.expireTime) {
+  if (!shareForm.value.expireTime) {
     ElNotification({
       title: '提示',
       message: '请选择过期时间',
@@ -779,7 +735,7 @@ const handleShare = () => {
       'Authorization': `Bearer ${token.value}`
     }
   }).then(res => {
-    if(res.data.code === 200) {
+    if (res.data.code === 200) {
       ElNotification({
         title: '成功',
         message: '分享成功',
@@ -793,7 +749,7 @@ const handleShare = () => {
     ElNotification({
       title: '错误',
       message: '分享失败',
-      type: 'error' 
+      type: 'error'
     })
   })
 }
@@ -851,14 +807,14 @@ provide('updateSelectedFiles', (selection) => {
 
 onMounted(() => {
   console.log('DashboardPage')
-  
+
   console.log('请求地址', backendAddress)
   const token = cookies.get('az')
   //请求获取rootfolderid,记入到cookie
   rootfolder(token)
   //用rootfolderid请求根目录文件
-  
-  
+
+
 
 
 })
@@ -892,14 +848,17 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 500px; /* 与表格高度一致 */
+  height: 500px;
+  /* 与表格高度一致 */
   font-size: 18px;
   color: #999;
 }
+
 /* 去掉列表滚动条 */
 .el-scrollbar .el-scrollbar__bar.is-vertical .el-scrollbar__thumb {
-    display: none;
+  display: none;
 }
+
 :root {
   --popper-overflow: hidden;
   /* 默认值 */
@@ -908,13 +867,16 @@ onMounted(() => {
 .el-popper {
   overflow: var(--popper-overflow);
 }
+
 .custom-popper {
   --popper-overflow: auto;
   /* 只在这个下拉菜单中设置为 auto */
 }
+
 .no-triangle::after {
   display: none;
 }
+
 .custom-dropdown .el-dropdown-item:hover {
   background-color: #478068;
   /* 粉色背景 */
@@ -1087,7 +1049,8 @@ onMounted(() => {
 .settings-button:hover {
   background-color: #e0e0e0;
 }
-.el-table-column-a{
+
+.el-table-column-a {
   padding-left: 10px;
 
 }
@@ -1116,9 +1079,9 @@ onMounted(() => {
 
 .dialog-footer {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 10px;
-  padding-left: 30px;
+  /* padding-left: 30px; */
 }
 
 :deep(.el-dialog) {
@@ -1191,16 +1154,21 @@ onMounted(() => {
 :deep(.el-dialog__body) {
   padding-top: 10px;
 }
+
 /* 添加面包屑样式 */
 .breadcrumb-item {
-  cursor: pointer; /* 鼠标变成小手 */
-  color: #606266; /* 默认颜色 */
-  transition: color 0.3s; /* 颜色过渡效果 */
+  cursor: pointer;
+  /* 鼠标变成小手 */
+  color: #606266;
+  /* 默认颜色 */
+  transition: color 0.3s;
+  /* 颜色过渡效果 */
 }
 
 /* 最后一个项目可能需要特殊样式 */
 .el-breadcrumb__inner {
-  color: #606266; /* 默认颜色 */
+  color: #606266;
+  /* 默认颜色 */
   cursor: pointer !important;
 }
 
@@ -1208,5 +1176,62 @@ onMounted(() => {
 .el-breadcrumb__item:last-child .breadcrumb-item:hover {
   color: #303133;
   text-decoration: none;
+}
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  white-space: nowrap;
+}
+
+.action-btn {
+  padding: 4px 12px;
+}
+
+
+
+:deep(.el-divider--vertical) {
+  height: 1em;
+  margin: 0 4px;
+}
+
+.delete-confirm-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.warning-icon-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #fff2f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.warning-icon {
+  font-size: 30px;
+  color: #fc2825;
+}
+
+.delete-text {
+  font-size: 16px;
+  color: #606266;
+  text-align: center;
+}
+
+:deep(.el-dialog__header) {
+  margin-right: 0;
+  padding-bottom: 0;
+}
+
+:deep(.el-dialog__headerbtn) {
+  top: 16px;
 }
 </style>

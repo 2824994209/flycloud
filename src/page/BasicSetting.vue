@@ -5,9 +5,8 @@
 				<div class="shadow-box">
 					<h3>用户信息</h3>
 					<div class="user-info">
-						<span>用户名：{{ userInfo }}</span>
-						<div style="margin-bottom: 10px;"></div>
-						<span>邮箱：{{ userEmail }}</span>
+						<span><span class="info-label">用户名：</span>{{ userInfo }}</span>
+						<span><span class="info-label">邮箱：</span>{{ userEmail }}</span>
 					</div>
 					<div class="button-group">
 						<el-button color="#626aef" @click="showUsernameDialog">修改用户名</el-button>
@@ -37,7 +36,7 @@
 			<el-input v-model="newUsername" placeholder="请输入新的用户名" maxlength="20" show-word-limit />
 			<template #footer>
 				<span class="dialog-footer">
-					<el-button type="primary" @click="updateUsername" color="#626aef">
+					<el-button type="primary" @click="updateUsername" color="#626aef" :loading="loading">
 						确认
 					</el-button>
 					<el-button @click="usernameDialogVisible = false">取消</el-button>
@@ -55,12 +54,12 @@
 					<el-input v-model="passwordForm.newPassword" type="password" placeholder="请输入新密码" show-password />
 				</el-form-item>
 				<el-form-item prop="confirmPassword">
-					<el-input v-model="passwordForm.confirmPassword" type="password" placeholder="��确认新密码" show-password />
+					<el-input v-model="passwordForm.confirmPassword" type="password" placeholder="请确认新密码" show-password />
 				</el-form-item>
 			</el-form>
 			<template #footer>
 				<span class="dialog-footer">
-					<el-button type="primary" @click="updatePassword" color="#626aef">
+					<el-button type="primary" @click="updatePassword" color="#626aef" :loading="loading">
 						确认
 					</el-button>
 					<el-button @click="closePasswordDialog">取消</el-button>
@@ -377,7 +376,7 @@ const initQuotaChart = async () => {
 		console.error('获取配额信息失败', error);
 	}
 };
-
+const loading = ref(false);
 // 更新用户名的方法
 const updateUsername = async () => {
 	if (!newUsername.value) {
@@ -392,7 +391,8 @@ const updateUsername = async () => {
 	}
 
 	try {
-		const res = await axios.put(`${backendAddress}/api/v1/user/username`, {
+		loading.value = true;
+		const res = await axios.put(`${backendAddress}/api/v1/user/name`, {
 			username: newUsername.value
 		}, {
 			headers: {
@@ -410,13 +410,23 @@ const updateUsername = async () => {
 			});
 			userInfo.value = newUsername.value;
 			usernameDialogVisible.value = false;
+		}else{
+			ElNotification({
+				duration: 2000,
+				title: 'error',
+				message: '用户名修改失败',
+				type: 'error',
+				showClose: false,
+			});
 		}
 	} catch (error) {
 		console.error('更新用户名失败', error);
+	} finally {
+		loading.value = false;
 	}
 };
 
-// 密码验证规���
+// 密码验证规则
 const passwordRules = {
 	oldPassword: [
 		{ required: true, message: '请输入原密码', trigger: 'blur' }
@@ -453,9 +463,10 @@ const updatePassword = async () => {
 	await passwordFormRef.value.validate(async (valid) => {
 		if (valid) {
 			try {
-				const res = await axios.put(`${backendAddress}/api/v1/user/password`, {
-					old_password: passwordForm.value.oldPassword,
-					new_password: passwordForm.value.newPassword
+				loading.value = true;
+				const res = await axios.put(`${backendAddress}/api/v1/user/passwd`, {
+					old_pwd: passwordForm.value.oldPassword,
+					new_pwd: passwordForm.value.newPassword
 				}, {
 					headers: {
 						'Authorization': `Bearer ${token}`
@@ -471,6 +482,14 @@ const updatePassword = async () => {
 						showClose: false,
 					});
 					closePasswordDialog();
+				}else{
+					ElNotification({
+						duration: 2000,
+						title: 'error',
+						message: '密码修改失败',
+						type: 'error',
+						showClose: false,
+					});
 				}
 			} catch (error) {
 				console.error('修改密码失败', error);
@@ -481,6 +500,8 @@ const updatePassword = async () => {
 					type: 'error',
 					showClose: false,
 				});
+			} finally {
+				loading.value = false;
 			}
 		}
 	});
@@ -582,5 +603,29 @@ h3 {
 :deep(.el-input__wrapper:focus-within) {
   border-color: #626aef !important;
   box-shadow: 0 0 0 1px #626aef !important;
+}
+
+.user-info {
+  padding: 20px;
+  background-color: #f8f9fe;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.user-info span {
+  display: block;
+  margin-bottom: 15px;
+  color: #606266;
+  font-size: 14px;
+}
+
+.user-info span:last-child {
+  margin-bottom: 0;
+}
+
+.info-label {
+  color: #909399;
+  margin-right: 10px;
+  font-weight: 500;
 }
 </style>

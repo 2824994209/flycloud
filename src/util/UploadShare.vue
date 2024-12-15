@@ -89,8 +89,10 @@ const handleUpload = async () => {
 
 <style scoped>
 .content-share {
-  padding: 20px;
+  padding: 20px 40px;
+
   display: flex;
+  justify-content: center;
   flex-direction: column;
   gap: 20px;
   height: calc(100% - 10px);
@@ -99,7 +101,7 @@ const handleUpload = async () => {
 }
 
 .button-group {
-  text-align: left;
+  text-align: center;
   padding-top: 20px;
 }
 

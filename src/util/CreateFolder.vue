@@ -6,7 +6,6 @@
     <div class="content-share">
       <el-input v-model="folderName" placeholder="请输入文件夹名称" />
       <div class="button-group">
-
         <el-button color="#626aef" @click="createFolder" :disabled="!folderName">
           创建
         </el-button>
@@ -75,17 +74,18 @@ const createFolder = async () => {
 
 <style scoped>
 .content-share {
-  padding: 20px;
+  padding: 20px 40px;
+
   display: flex;
+  justify-content: center;
   flex-direction: column;
   gap: 20px;
   height: calc(100% - 10px);
   max-width: 100%;
   box-sizing: border-box;
 }
-
 .button-group {
-  text-align: left;
+  text-align: center;
   padding-top: 20px;
 }
 
