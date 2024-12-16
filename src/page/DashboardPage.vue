@@ -851,7 +851,7 @@ onMounted(() => {
   const token = cookies.get('az')
   //请求获取rootfolderid,记入到cookie
   rootfolder(token)
-  //用rootfolderid请求根目录���件
+  //用rootfolderid请求根目录文件
 
 
 

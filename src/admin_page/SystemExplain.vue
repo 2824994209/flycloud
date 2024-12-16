@@ -1,68 +1,72 @@
 <template>
   <BackAdmin>
-    <div class="dashboard">
-      <div class="info-card">
-        <h3>系统说明</h3>
-        <div class="info-content">
-          <p style="color: gray;">UI 版本: </p>
-          <p >{{ moni.systemInfo.uiVersion }}</p>
-          <div style="padding: 17px 0;">
+    <div v-loading="isLoading"
+         element-loading-text="Loading..."
+         element-loading-background="rgba(255, 255, 255)">
+      <div class="dashboard">
+        <div class="info-card">
+          <h3>系统说明</h3>
+          <div class="info-content">
+            <p style="color: gray;">UI 版本: </p>
+            <p >{{ moni.systemInfo.uiVersion }}</p>
+            <div style="padding: 17px 0;">
 
+            </div>
+            <p style="color: gray;">软件版本: </p>
+            <p>{{ moni.systemInfo.softwareVersion }}</p>
+            <div class="buttons">
+              <el-button type="primary" @click="handleVisitWebsite">访问网站</el-button>
+              <el-button @click="handleAbout">关于软件</el-button>
+            </div>
           </div>
-          <p style="color: gray;">软件版本: </p>
-          <p>{{ moni.systemInfo.softwareVersion }}</p>
-          <div class="buttons">
-            <el-button type="primary">访问网站</el-button>
-            <el-button>关于软件</el-button>
+        </div>
+        <div class="info-card large">
+          <h3>整体数据</h3>
+          <div class="data-grid">
+            <div class="data-item"><p style="text-align: left;padding-bottom: 5px;margin: 0;color: gray;">用户数:</p> <span class="dynamic">{{ moni.overallData.userCount }}</span></div>
+            <div class="data-item"><p style="text-align: left;padding-bottom: 5px;margin: 0;color: gray;">管理员:</p> <span class="dynamic">{{ moni.overallData.adminCount }}</span></div>
+            <div class="data-item"><p style="text-align: left;padding-bottom: 5px;margin: 0;color: gray;">分享数:</p> <span class="dynamic">{{ moni.overallData.shareCount }}</span></div>
+            <div class="data-item"><p style="text-align: left;padding-bottom: 5px;margin: 0;color: gray;">文件数:</p> <span class="dynamic">{{ moni.overallData.fileCount }}</span></div>
+            <div class="data-item"><p style="text-align: left;padding-bottom: 5px;margin: 0;color: gray;">总占用:</p> <span class="dynamic">{{ moni.overallData.totalUsage }}</span></div>
+            <div class="data-item"><p style="text-align: left;padding-bottom: 5px;margin: 0;color: gray;">实际占用:</p> <span class="dynamic">{{ moni.overallData.actualUsage }}</span></div>
+          </div>
+        </div>
+        <div class="info-card">
+          <h3>服务器占用</h3>
+          <div class="data-grid single-column">
+            <div class="data-item-b">
+              <span style="color: gray;">CPU: </span>
+              <el-progress :percentage="moni.serverUsage.cpuUsage" :color="colors" />
+            </div>
+            <div class="data-item-b">
+              <span style="color: gray;">内存: </span>
+              <el-progress :percentage="moni.serverUsage.memoryUsage" :color="colors" />
+            </div>
+            <div class="data-item-b">
+              <span style="color: gray;">磁盘: </span>
+              <el-progress :percentage="moni.serverUsage.diskUsage" :color="colors" />
+            </div>
           </div>
         </div>
       </div>
-      <div class="info-card large">
-        <h3>整体数据</h3>
-        <div class="data-grid">
-          <div class="data-item"><p style="text-align: left;padding-bottom: 5px;margin: 0;color: gray;">用户数:</p> <span class="dynamic">{{ moni.overallData.userCount }}</span></div>
-          <div class="data-item"><p style="text-align: left;padding-bottom: 5px;margin: 0;color: gray;">管理员:</p> <span class="dynamic">{{ moni.overallData.adminCount }}</span></div>
-          <div class="data-item"><p style="text-align: left;padding-bottom: 5px;margin: 0;color: gray;">分享数:</p> <span class="dynamic">{{ moni.overallData.shareCount }}</span></div>
-          <div class="data-item"><p style="text-align: left;padding-bottom: 5px;margin: 0;color: gray;">文件数:</p> <span class="dynamic">{{ moni.overallData.fileCount }}</span></div>
-          <div class="data-item"><p style="text-align: left;padding-bottom: 5px;margin: 0;color: gray;">总占用:</p> <span class="dynamic">{{ moni.overallData.totalUsage }}</span></div>
-          <div class="data-item"><p style="text-align: left;padding-bottom: 5px;margin: 0;color: gray;">实际占用:</p> <span class="dynamic">{{ moni.overallData.actualUsage }}</span></div>
-        </div>
-      </div>
-      <div class="info-card">
-        <h3>服务器占用</h3>
-        <div class="data-grid single-column">
-          <div class="data-item-b">
-            <span style="color: gray;">CPU: </span>
-            <el-progress :percentage="moni.serverUsage.cpuUsage" :color="colors" />
-          </div>
-          <div class="data-item-b">
-            <span style="color: gray;">内存: </span>
-            <el-progress :percentage="moni.serverUsage.memoryUsage" :color="colors" />
-          </div>
-          <div class="data-item-b">
-            <span style="color: gray;">磁盘: </span>
-            <el-progress :percentage="moni.serverUsage.diskUsage" :color="colors" />
+      <div class="dashboard">
+        <div class="info-card">
+          <h3>cpu和内存占用率</h3>
+          <div class="data-grid-c">
+            <div class="data-item-c" style="border: none;">
+              <el-progress type="dashboard" :percentage="moni.serverUsage.cpuUsage" :color="colors" />
+              <span>cpu占用率</span>
+            </div>
+            <div class="data-item-c" style="border: none;">
+              <el-progress type="dashboard" :percentage="moni.serverUsage.memoryUsage" :color="colors" />
+              <span>内存占用率</span>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-    <div class="dashboard">
-      <div class="info-card">
-        <h3>cpu和内存占用率</h3>
-        <div class="data-grid-c">
-          <div class="data-item-c" style="border: none;">
-            <el-progress type="dashboard" :percentage="moni.serverUsage.cpuUsage" :color="colors" />
-            <span>cpu占用率</span>
-          </div>
-          <div class="data-item-c" style="border: none;">
-            <el-progress type="dashboard" :percentage="moni.serverUsage.memoryUsage" :color="colors" />
-            <span>内存占用率</span>
-          </div>
+        <div class="info-card disk-chart-card">
+          <h3>系统磁盘使用情况</h3>
+          <div class="disk-chart-container" ref="diskChartRef"></div>
         </div>
-      </div>
-      <div class="info-card disk-chart-card">
-        <h3>磁盘使用情况</h3>
-        <div class="disk-chart-container" ref="diskChartRef"></div>
       </div>
     </div>
   </BackAdmin>  
@@ -70,10 +74,16 @@
 
 <script setup>
 import BackAdmin from '@/layouts/BackAdmin.vue';
-import { ref,onMounted,getCurrentInstance, onUnmounted, nextTick } from 'vue';
+import { ref,onMounted, onUnmounted, nextTick,inject } from 'vue';
+import axios from '@/config/axiosInstance'
 import 'element-plus/theme-chalk/el-progress.css';
-const { proxy } = getCurrentInstance()
-const echarts = proxy.$echarts
+import { ElNotification } from 'element-plus'
+
+
+const backendAddress = inject('backendAddress')
+import { useCookies } from 'vue3-cookies';
+const { cookies } = useCookies();
+import * as echarts from 'echarts';
 const colors = [
   { color: '#f56c6c', percentage: 20 },
   { color: '#e6a23c', percentage: 40 },
@@ -81,27 +91,27 @@ const colors = [
   { color: '#1989fa', percentage: 80 },
   { color: '#6f7ad3', percentage: 100 },
 ]
-// 模拟数据
+
 const moni = ref({
   systemInfo: {
-    uiVersion: "v0.1.2 (2022-08-07)",
-    softwareVersion: "v0.1.2022-08-07 (测试版)"
+    uiVersion: 'null',
+    softwareVersion: 'null'
   },
   overallData: {
-    userCount: 1,
-    adminCount: 1,
+    userCount: 0,
+    adminCount: 0,
     shareCount: 0,
     fileCount: 0,
-    totalUsage: "0B",
-    actualUsage: "0B"
+    totalUsage: '0B',
+    actualUsage: '0B'
   },
   serverUsage: {
-    cpuUsage: 6.15,
-    memoryUsage: 30.00,
-    diskUsage: 47.06,
-    diskTotal: '500GB',
-    diskUsed: '235.3GB',
-    diskFree: '264.7GB'
+    cpuUsage: 0,
+    memoryUsage: 0,
+    diskUsage: 0,
+    diskTotal: '0GB',
+    diskUsed: '0GB',
+    diskFree: '0GB'
   }
 });
 const diskChartRef = ref(null)
@@ -195,8 +205,35 @@ const resizeObserver = new ResizeObserver(() => {
     diskChart.resize()
   }
 })
-
+const isLoading = ref(false);
 onMounted(async () => {
+  const token = cookies.get('az');
+  try{
+    isLoading.value = true;
+    const res = await axios.get(`${backendAddress}/api/v1/admin/system/status`,{headers:{
+      'Authorization': `Bearer ${token}`
+    }})
+    moni.value = res.data.data
+    console.log(moni.value)
+    // ElNotification({
+    //     duration: 2000,
+    //     title: 'success',
+    //     message: '获取系统状态成功',
+    //     type: 'success',
+    //     showClose: false,
+    //   })
+  }catch(err){
+    console.log(err)
+    ElNotification({
+        duration: 2000,
+        title: 'error',
+        message: '获取系统状态失败',
+        type: 'error',
+        showClose: false,
+      })
+  }finally{
+    isLoading.value = false;
+  }
   await nextTick()
   if (diskChartRef.value) {
     resizeObserver.observe(diskChartRef.value)
@@ -210,6 +247,12 @@ onUnmounted(() => {
     diskChart.dispose()
   }
 })
+const handleVisitWebsite = () => {
+  // window.open('/', '_blank')
+}
+const handleAbout = () => {
+  window.open('https://github.com/2824994209/flycloud/tree/main', '_blank')
+}
 </script>
 
 <style scoped>

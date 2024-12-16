@@ -6,7 +6,7 @@
     <div class="shangc"></div>
     <div 
       v-loading="isLoading"
-      element-loading-text="加载中..."
+      element-loading-text="Loading..."
       element-loading-background="rgba(255, 255, 255, 0.8)"
       class="timeline-container" 
       style="height: calc(100vh - 240px);overflow: auto;"

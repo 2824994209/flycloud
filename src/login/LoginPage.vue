@@ -165,7 +165,12 @@ const submitLogin = async () => {
         showClose: false,
       })
       
-      router.push('/user/personal')
+      // router.push('/user/personal')
+      if(loginForm.email == 'admin@qpan.com'){
+        router.push('/admin/system')
+      }else{
+        router.push('/user/personal')
+      }
     }else{
       refreshCaptcha()
       ElNotification({

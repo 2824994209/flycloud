@@ -3,7 +3,7 @@ import { useCookies } from 'vue3-cookies';
 // import MainLayout from '@/layouts/MainLayout.vue';
 import PageDashboard from '@/page/DashboardPage.vue';
 import LoginPage from '@/login/LoginPage.vue';
-import HelloWorld from '@/components/HelloWorld.vue'
+// import HelloWorld from '@/components/HelloWorld.vue'
 import RegisterPage from '@/login/RegisterPage.vue';
 // import CreateFile from '@/util/CreateFile.vue';
 import BasicSetting from '@/page/BasicSetting.vue';
@@ -24,10 +24,10 @@ const routes = [
       return isAuthenticated ? '/user/personal' : '/login';
     }
   },
-  { path: '/admin/system', component: SystemExplain,  },
-  { path: '/admin/user', component: UserManage,  },
-  { path: '/admin/basic', component: adminBasicSetting, },
-  { path: '/ces', component: HelloWorld, meta: { requiresAuth: true } },
+  { path: '/admin/system', component: SystemExplain, meta: { requiresAuth: true } },
+  { path: '/admin/user', component: UserManage, meta: { requiresAuth: true } },
+  { path: '/admin/basic', component: adminBasicSetting, meta: { requiresAuth: true } },
+  // { path: '/ces', component: HelloWorld, meta: { requiresAuth: true } },
   { path: '/login', name: 'LoginPage', component: LoginPage },
   { path: '/register', component: RegisterPage },
   { path: '/user/personal', component: PageDashboard, meta: { requiresAuth: true }},
