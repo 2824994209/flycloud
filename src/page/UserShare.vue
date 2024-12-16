@@ -78,7 +78,8 @@
 <script setup>
 import { ref, onMounted, inject } from 'vue';
 import { ElNotification } from 'element-plus';
-import axios from 'axios';
+import axios from '@/config/axiosInstance';
+// import axios from 'axios';
 import MainLayout from '@/layouts/MainLayout.vue';
 const backendAddress = inject('backendAddress');
 import { useCookies } from 'vue3-cookies';

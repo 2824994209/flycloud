@@ -99,7 +99,8 @@
 <script setup>
 /* eslint-disable no-undef */
 import { ref, inject } from "vue";
-import axiosInstance from 'axios';
+import axiosInstance from '@/config/axiosInstance';
+// import axiosInstance from 'axios';
 // import OperationFunction from "@/util/OperationFunction.vue";
 // import DashboardPage from "@/page/DashboardPage.vue";
 // 从 localStorage 读取 isCollapse 的初始值
@@ -153,7 +154,7 @@ const handleSelect = (value) => {
 // 处理失焦
 const handleBlur = () => {
   setTimeout(() => {
-    // selectedValue.value = null;
+    selectedValue.value = null;
   }, 200);
 };
 

@@ -78,14 +78,14 @@
 
                 <template v-if="row.file_type === 'doc'">
                   <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-                    <path fill="#4B8BF4"
-                      d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-3.5 14H14v-4h-4v4H8.5v-7h2v2h3v-2h2v7z" />
+                    <path fill="#4285F4" 
+                      d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-3.5 14H14v-4h-4v4H8.5v-7h2v2h3v-2h2v7z"/>
                   </svg>
                 </template>
                 <template v-else-if="row.file_type === 'zip'">
                   <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
                     <path fill="#FFA000"
-                      d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2M18 12h-2v2h2v2h-2v2h-2v-2h2v-2h-2v-2h2v-2h-2V8h2v2h2z" />
+                      d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-1 8h-3v3h-2v-3h-3v-2h3V9h2v3h3v2z"/>
                   </svg>
                 </template>
                 <template v-else-if="row.file_type === 'json'">
@@ -116,6 +116,36 @@
                   <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
                     <path fill="#E34C26"
                       d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 12H7v-2h10v2zm0-4H7V9h10v2z" />
+                  </svg>
+                </template>
+                <template v-else-if="row.file_type === 'pdf'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                    <path fill="#E94444" 
+                      d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9.5 8.5c0 .83-.67 1.5-1.5 1.5H7v2H5.5V9H8c.83 0 1.5.67 1.5 1.5v1zm10 0c0 .83-.67 1.5-1.5 1.5h-2.5V15H15v2h-2.5V9H17c.83 0 1.5.67 1.5 1.5v1zm-5-5c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5h-2.5V7h2.5z"/>
+                  </svg>
+                </template>
+                <template v-else-if="row.file_type === 'image' || row.file_type === 'png' || row.file_type === 'jpg' || row.file_type === 'jpeg'|| row.file_type === 'svg'|| row.file_type === 'ico'|| row.file_type === 'gif'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                    <path fill="#42B983"
+                      d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                  </svg>
+                </template>
+                <template v-else-if="row.file_type === 'video' || row.file_type === 'mp4' || row.file_type === 'avi'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                    <path fill="#FF5722"
+                      d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                  </svg>
+                </template>
+                <template v-else-if="row.file_type === 'audio' || row.file_type === 'mp3' || row.file_type === 'wav'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                    <path fill="#FF9800"
+                      d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z"/>
+                  </svg>
+                </template>
+                <template v-else-if="row.file_type === 'excel' || row.file_type === 'xlsx' || row.file_type === 'xls'">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                    <path fill="#1FA463"
+                      d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-3.5 14H14v-4h-4v4H8.5v-7h2v2h3v-2h2v7z"/>
                   </svg>
                 </template>
                 <template v-else>
@@ -281,13 +311,12 @@
 </template>
 <script setup>
 import MainLayout from '@/layouts/MainLayout.vue';
+import axiosInstance from '@/config/axiosInstance';
 import { ref, onMounted, inject, provide } from 'vue'
 import { ElNotification } from 'element-plus'
-// import { Download } from '@element-plus/icons';
-import axiosInstance from 'axios';
+// import axiosInstance from 'axios';
 import { useCookies } from 'vue3-cookies';
 const { cookies } = useCookies();
-// import { Folder, Document } from '@element-plus/icons';
 const backendAddress = inject('backendAddress');
 import OperationFunction from '@/layouts/OperationFunction.vue';
 // import UploadFile from '@/util/UploadFile.vue';
@@ -373,47 +402,57 @@ const dropdownDownload = (row) => {
   // 检查是否为文件夹
   if (row.type === 'folder') {
     ElNotification({
-      title: '提示',
+      title: '提示', 
       message: '文件夹不允许下载',
-      type: 'warning',
-      duration: 2000,
-      showClose: false
+      type: 'warning'
     });
     return;
   }
 
-  axiosInstance.get(`${backendAddress}/api/v1/fs/file/${row.id}`, {
-    headers: {
-      'Authorization': `Bearer ${token.value}`
-    },
-    responseType: 'blob'  // 设置响应类型为blob
-  }).then(response => {
-    // 创建blob链接
-    const blob = new Blob([response.data], {
-      type: response.headers['content-type']
-    });
-    const url = window.URL.createObjectURL(blob);
-
-    // 创建一个临时的a标签来触发下载
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = row.file_name; // 使用文件原始名称
-    document.body.appendChild(link);
-    link.click();
-
-    // 清理
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-  }).catch(error => {
-    console.error('下载失败:', error);
+  // 构建下载URL
+  const downloadUrl = `${backendAddress}/api/v1/fs/file/${row.id}`;
+  
+  // 创建XMLHttpRequest请求
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', downloadUrl, true);
+  xhr.responseType = 'blob';
+  xhr.setRequestHeader('Authorization', `Bearer ${token.value}`);
+  
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      // 创建blob对象
+      const blob = new Blob([xhr.response]);
+      
+      // 创建临时下载链接
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = row.file_name || row.name; // 设置下载文件名
+      
+      // 添加到文档并触发点击
+      document.body.appendChild(link);
+      link.click();
+      
+      // 清理
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(link.href);
+    } else {
+      ElNotification({
+        title: '错误',
+        message: '下载失败',
+        type: 'error'
+      });
+    }
+  };
+  
+  xhr.onerror = function() {
     ElNotification({
       title: '错误',
-      message: '文件下载失败',
-      type: 'error',
-      duration: 2000,
-      showClose: false
+      message: '下载失败',
+      type: 'error'
     });
-  });
+  };
+  
+  xhr.send();
 };
 
 // 删除文件
@@ -812,7 +851,7 @@ onMounted(() => {
   const token = cookies.get('az')
   //请求获取rootfolderid,记入到cookie
   rootfolder(token)
-  //用rootfolderid请求根目录文件
+  //用rootfolderid请求根目录���件
 
 
 
@@ -1158,7 +1197,7 @@ onMounted(() => {
 /* 添加面包屑样式 */
 .breadcrumb-item {
   cursor: pointer;
-  /* 鼠标变成小手 */
+  /* 鼠标变成小�� */
   color: #606266;
   /* 默认颜色 */
   transition: color 0.3s;

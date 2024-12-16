@@ -31,7 +31,8 @@
 
 <script setup>
 import { ref, onMounted,inject } from 'vue';
-import axios from 'axios';
+import axios from '@/config/axiosInstance';
+// import axios from 'axios';
 import { ElNotification } from 'element-plus';
 import MainLayout from '@/layouts/MainLayout.vue';
 import { useCookies } from 'vue3-cookies';

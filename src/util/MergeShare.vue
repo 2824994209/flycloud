@@ -76,7 +76,8 @@ const selectedFiles = inject('selectedFiles', []);
 
 
 import { ElNotification } from 'element-plus'
-import axiosInstance from 'axios';
+import axiosInstance from '@/config/axiosInstance';
+// import axiosInstance from 'axios';
 
 
 const disabledDate = (time) => {
@@ -92,6 +93,14 @@ const currentShareFile = ref(null)
 
 // 打开分享弹窗
 const Sharecontent = () => {
+  if(selectedFiles.value.length == 0){
+		ElNotification({
+			title: '请选择文件',
+			message: '请选择文件',
+			type: 'warning',
+		});
+		return;
+	}
 	console.log("selectedFiles",selectedFiles.value)
   currentShareFile.value = selectedFiles.value
   shareDialogVisible.value = true

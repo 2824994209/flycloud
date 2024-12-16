@@ -19,7 +19,8 @@
 import { h, ref,inject } from 'vue';
 import { ElNotification } from 'element-plus';
 import { useCookies } from 'vue3-cookies';
-import axios from 'axios';
+import axios from '@/config/axiosInstance';
+// import axios from 'axios';
 
 const { cookies } = useCookies();
 

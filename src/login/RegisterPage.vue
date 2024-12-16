@@ -159,39 +159,39 @@ const getCaptcha = async () => {
           clearInterval(timer)
         }
       }, 1000)
-  // try {
-  //   const res = await axios.post(`${backendAddress}/api/v1/user/captcha`, {
-  //     email: registerForm.email
-  //   })
+  try {
+    const res = await axios.post(`${backendAddress}/api/v1/public/send/emailcode`, {
+      email: registerForm.email
+    })
     
-  //   if (res.data.code === 200) {
-  //     ElNotification({
-  //       duration: 2000,
-  //       title: 'success',
-  //       message: '验证码已发送',
-  //       type: 'success',
-  //       showClose: false,
-  //     })
+    if (res.data.code === 200) {
+      ElNotification({
+        duration: 2000,
+        title: 'success',
+        message: '验证码已发送',
+        type: 'success',
+        showClose: false,
+      })
       
-  //     countdown.value = 60
-  //     const timer = setInterval(() => {
-  //       if (countdown.value > 0) {
-  //         countdown.value--
-  //       } else {
-  //         clearInterval(timer)
-  //       }
-  //     }, 1000)
-  //   }
-  // } catch (error) {
-  //   console.error('获取验证码失败:', error)
-  //   ElNotification({
-  //     duration: 2000,
-  //     title: 'error',
-  //     message: '获取验证码失败',
-  //     type: 'error',
-  //     showClose: false,
-  //   })
-  // }
+      countdown.value = 60
+      const timer = setInterval(() => {
+        if (countdown.value > 0) {
+          countdown.value--
+        } else {
+          clearInterval(timer)
+        }
+      }, 1000)
+    }
+  } catch (error) {
+    console.error('获取验证码失败:', error)
+    ElNotification({
+      duration: 2000,
+      title: 'error',
+      message: '获取验证码失败',
+      type: 'error',
+      showClose: false,
+    })
+  }
 }
 
 // 提交注册
@@ -235,7 +235,7 @@ const submitRegister = async () => {
       email: registerForm.email,
       username: registerForm.username,
       password: registerForm.password,
-      captcha: registerForm.captcha
+      email_code: registerForm.captcha
     })
 
     if (res.data.code === 200) {
@@ -247,6 +247,14 @@ const submitRegister = async () => {
         showClose: false,
       })
       router.push('/login')
+    }else{
+      ElNotification({
+        duration: 2000,
+        title: 'error',
+        message: res.data.msg,
+        type: 'error',
+        showClose: false,
+      })
     }
   } catch (error) {
     console.error('注册失败:', error)

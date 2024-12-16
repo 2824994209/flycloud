@@ -20,7 +20,7 @@
 <script setup>
 import { ref, inject } from 'vue';
 import { ElNotification } from 'element-plus';
-import axiosInstance from 'axios';
+import axiosInstance from '@/config/axiosInstance';
 import { useCookies } from 'vue3-cookies';
 const { cookies } = useCookies();
 const backendAddress = inject('backendAddress');

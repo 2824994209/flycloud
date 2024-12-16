@@ -71,9 +71,10 @@
 
 <script setup>
 import MainLayout from '@/layouts/MainLayout.vue';
+import axios from '@/config/axiosInstance';
 import { ref, onMounted, inject } from 'vue';
 import * as echarts from 'echarts';
-import axios from 'axios';
+// import axios from 'axios';
 import { useCookies } from 'vue3-cookies';
 const { cookies } = useCookies();
 import { ElNotification } from 'element-plus'
@@ -295,7 +296,12 @@ const initQuotaChart = async () => {
 		});
 		
 		const { quota, used_size } = res.data.data;
-		const usedGB = (used_size / 1024 / 1024 / 1024).toFixed(2);
+		let usedGB = (used_size / 1024 / 1024 / 1024);
+		if (usedGB > 0 && usedGB < 0.01) {
+			usedGB = 0.01;
+		} else {
+			usedGB = usedGB.toFixed(2);
+		}
 		const totalGB = (quota / 1024 / 1024 / 1024).toFixed(2);
 		
 		const chart = echarts.init(quotaChartRef.value);
