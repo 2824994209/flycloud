@@ -9,14 +9,15 @@
           <div class="info-content">
             <p style="color: gray;">UI 版本: </p>
             <p >{{ moni.systemInfo.uiVersion }}</p>
-            <div style="padding: 17px 0;">
+            <div style="padding: 15px 0;">
 
             </div>
             <p style="color: gray;">软件版本: </p>
             <p>{{ moni.systemInfo.softwareVersion }}</p>
+            <div style="padding: 5px 0;"></div>
             <div class="buttons">
-              <el-button type="primary" @click="handleVisitWebsite">访问网站</el-button>
-              <el-button @click="handleAbout">关于软件</el-button>
+              <!-- <el-button type="primary" @click="handleVisitWebsite">访问网站</el-button> -->
+              <el-button type="primary" @click="handleAbout">关于软件</el-button>
             </div>
           </div>
         </div>
@@ -247,9 +248,9 @@ onUnmounted(() => {
     diskChart.dispose()
   }
 })
-const handleVisitWebsite = () => {
-  // window.open('/', '_blank')
-}
+// const handleVisitWebsite = () => {
+//   window.open('/', '_blank')
+// }
 const handleAbout = () => {
   window.open('https://github.com/2824994209/flycloud/tree/main', '_blank')
 }
@@ -334,6 +335,7 @@ const handleAbout = () => {
 }
 .data-item-c {
   padding: 20px;
+  padding-top: 70px;
   /* border: 1px solid #f0eaea; */
   border-radius: 8px;
   /* background-color: #f9f9f9; */

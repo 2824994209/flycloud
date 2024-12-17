@@ -24,11 +24,17 @@
               <span>用户管理</span>
             </el-menu-item>
 
-            <el-menu-item index="/admin/basic">
+            <!-- <el-menu-item index="/admin/basic">
               <el-icon>
                 <Setting />
               </el-icon>
               <span>基础设置</span>
+            </el-menu-item> -->
+            <el-menu-item index="/admin/userrole">
+              <el-icon>
+                <UserFilled />
+              </el-icon>
+              <span>用户角色</span>
             </el-menu-item>
             <!-- <el-menu-item index="4">
               <el-icon>
@@ -53,17 +59,18 @@
     <!-- 退出确认对话框 -->
     <el-dialog
       v-model="dialogVisible"
-      title="退出确认"
-      width="30%"
-      :close-on-click-modal="false"
-      center
+      title="是否退出"
+      width="500px"
     >
-      <span>确定要退出登录吗？</span>
+      <div class="dialog-content">
+        <el-icon class="logout-icon" :size="50" color="#ff4d4f"><SwitchButton /></el-icon>
+        <span class="dialog-text">确定要退出吗？</span>
+      </div>
       <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
+        <div class="dialog-footer">
+          <el-button plain @click="dialogVisible = false">取消</el-button>
           <el-button type="primary" @click="handleLogout">确定</el-button>
-        </span>
+        </div>
       </template>
     </el-dialog>
   </div>
@@ -126,9 +133,49 @@ const handleLogout = () => {
   box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
 }
 
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.logout-icon {
+  color: #ff4d4f;
+}
+
+.dialog-text {
+  font-size: 16px;
+  color: #606266;
+}
+
 .dialog-footer {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 20px;
+}
+
+:deep(.el-dialog) {
+  border-radius: 8px;
+}
+
+:deep(.el-dialog__header) {
+  margin-right: 0;
+  padding: 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+:deep(.el-dialog__headerbtn) {
+  top: 20px;
+}
+
+:deep(.el-dialog__body) {
+  padding: 0;
+}
+
+:deep(.el-dialog__footer) {
+  padding: 20px;
+  border-top: 1px solid #f0f0f0;
 }
 </style>

@@ -41,7 +41,7 @@
 
           </button>
         </div>
-        
+
       </div>
 
     </div>
@@ -61,10 +61,11 @@
     </div>
     <div ref="tableContainer" class="table-container">
       <el-table v-loading="loading" element-loading-text="Loading..."
-        element-loading-background="rgba(255, 255, 255, 1)" :data="tableData" style="width: 100%; height: calc(100vh - 200px);"
-        :row-style="{ height: rowHeight + 'px' }" @selection-change="handleSelectionChange">
+        element-loading-background="rgba(255, 255, 255, 1)" :data="tableData"
+        style="width: 100%; height: calc(100vh - 200px);" :row-style="{ height: rowHeight + 'px' }"
+        @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" />
-        <el-table-column label="Name" min-width="200"   show-overflow-tooltip>
+        <el-table-column label="Name" min-width="150" show-overflow-tooltip>
           <template #default="{ row }">
             <el-icon size="20" style="margin-bottom: 3px; vertical-align: middle;">
               <template v-if="row.type === 'folder'">
@@ -78,14 +79,14 @@
 
                 <template v-if="row.file_type === 'doc'">
                   <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-                    <path fill="#4285F4" 
-                      d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-3.5 14H14v-4h-4v4H8.5v-7h2v2h3v-2h2v7z"/>
+                    <path fill="#4285F4"
+                      d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-3.5 14H14v-4h-4v4H8.5v-7h2v2h3v-2h2v7z" />
                   </svg>
                 </template>
                 <template v-else-if="row.file_type === 'zip'">
                   <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
                     <path fill="#FFA000"
-                      d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-1 8h-3v3h-2v-3h-3v-2h3V9h2v3h3v2z"/>
+                      d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-1 8h-3v3h-2v-3h-3v-2h3V9h2v3h3v2z" />
                   </svg>
                 </template>
                 <template v-else-if="row.file_type === 'json'">
@@ -120,32 +121,33 @@
                 </template>
                 <template v-else-if="row.file_type === 'pdf'">
                   <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
-                    <path fill="#E94444" 
-                      d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9.5 8.5c0 .83-.67 1.5-1.5 1.5H7v2H5.5V9H8c.83 0 1.5.67 1.5 1.5v1zm10 0c0 .83-.67 1.5-1.5 1.5h-2.5V15H15v2h-2.5V9H17c.83 0 1.5.67 1.5 1.5v1zm-5-5c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5h-2.5V7h2.5z"/>
+                    <path fill="#E94444"
+                      d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9.5 8.5c0 .83-.67 1.5-1.5 1.5H7v2H5.5V9H8c.83 0 1.5.67 1.5 1.5v1zm10 0c0 .83-.67 1.5-1.5 1.5h-2.5V15H15v2h-2.5V9H17c.83 0 1.5.67 1.5 1.5v1zm-5-5c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5h-2.5V7h2.5z" />
                   </svg>
                 </template>
-                <template v-else-if="row.file_type === 'image' || row.file_type === 'png' || row.file_type === 'jpg' || row.file_type === 'jpeg'|| row.file_type === 'svg'|| row.file_type === 'ico'|| row.file_type === 'gif'">
+                <template
+                  v-else-if="row.file_type === 'image' || row.file_type === 'png' || row.file_type === 'jpg' || row.file_type === 'jpeg' || row.file_type === 'svg' || row.file_type === 'ico' || row.file_type === 'gif'">
                   <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
                     <path fill="#42B983"
-                      d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                      d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
                   </svg>
                 </template>
                 <template v-else-if="row.file_type === 'video' || row.file_type === 'mp4' || row.file_type === 'avi'">
                   <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
                     <path fill="#FF5722"
-                      d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                      d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" />
                   </svg>
                 </template>
                 <template v-else-if="row.file_type === 'audio' || row.file_type === 'mp3' || row.file_type === 'wav'">
                   <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
                     <path fill="#FF9800"
-                      d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z"/>
+                      d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z" />
                   </svg>
                 </template>
                 <template v-else-if="row.file_type === 'excel' || row.file_type === 'xlsx' || row.file_type === 'xls'">
                   <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
                     <path fill="#1FA463"
-                      d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-3.5 14H14v-4h-4v4H8.5v-7h2v2h3v-2h2v7z"/>
+                      d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-3.5 14H14v-4h-4v4H8.5v-7h2v2h3v-2h2v7z" />
                   </svg>
                 </template>
                 <template v-else>
@@ -172,40 +174,60 @@
           </template>
         </el-table-column>
 
-        <el-table-column property="actions" label="操作" width="200" >
+        <el-table-column property="actions" label="操作" width="280">
           <template #default="{ row }">
             <div class="action-buttons">
-              <el-button 
-                @click="Sharecontent(row)"
-                class="action-btn"
-                type="primary"
-                plain
-                color="#626aef"
+              <el-button @click="Sharecontent(row)" class="action-btn" type="primary" plain color="#626aef"
                 size="small">
                 分享
               </el-button>
               <el-divider direction="vertical" />
-              
-              <el-button
-                @click="dropdownDownload(row)"
-                class="action-btn"
-                
-                color="#626aef"
-                type="primary"
+
+              <el-button @click="dropdownDownload(row)" class="action-btn" plain color="#f453b1" type="primary"
                 size="small">
                 下载
               </el-button>
               <el-divider direction="vertical" />
-              
-              <el-button
-                @click="openDelete(row)"
-                class="action-btn"
-                
-                
-                type="danger"
-                size="small">
+
+              <el-button @click="openDelete(row)" class="action-btn" plain type="danger" size="small">
                 删除
               </el-button>
+              <el-divider direction="vertical" />
+              <el-dropdown trigger="click" @command="handleMoreCommand">
+                <el-button class="action-btn" type="primary" plain size="small">
+                  更多
+                  <el-icon class="el-icon--right"><arrow-down /></el-icon>
+                </el-button>
+                <template #dropdown>
+                  <!-- <el-dropdown-item :command="{type: 'rename', row: row}">重命名</el-dropdown-item>
+                  <el-dropdown-item :command="{type: 'move', row: row}">移动</el-dropdown-item> -->
+                  <el-dropdown-menu>
+                    <div style="padding: 5px 2px;">
+                      <el-button 
+                        class="action-btn"
+                        @click="handleMoreCommand({type: 'rename', row: row})"
+                        type="primary"
+                        plain
+                        size="small"
+                        style="margin-bottom: 10px;margin-left: 10px;margin-right: 10px;" 
+                      >
+                        重写
+                      </el-button>
+                      <br>
+                      <el-button
+                        class="action-btn"
+                        @click="handleMoreCommand({type: 'move', row: row})"
+                        type="primary" 
+                        plain
+                        size="small"
+                        style="margin-left: 10px;margin-right: 10px;" 
+                      >
+                        移动
+                      </el-button>
+                    </div>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
             </div>
           </template>
         </el-table-column>
@@ -213,10 +235,12 @@
       <!-- <div v-if="tableData.length === 0" class="no-data-message">No Data</div> -->
     </div>
   </MainLayout>
-  <el-dialog v-model="dropdownDelete" :title="'确定删除'" width="500px" >
+  <el-dialog v-model="dropdownDelete" :title="'确定删除'" width="500px">
     <div class="delete-confirm-content">
       <div class="warning-icon-circle">
-        <el-icon class="warning-icon"><Warning /></el-icon>
+        <el-icon class="warning-icon">
+          <Warning />
+        </el-icon>
       </div>
       <span class="delete-text">
         删除{{ dropdownSelecteDelete?.type === 'folder' ? dropdownSelecteDelete.name : dropdownSelecteDelete.file_name }}？
@@ -402,7 +426,7 @@ const dropdownDownload = (row) => {
   // 检查是否为文件夹
   if (row.type === 'folder') {
     ElNotification({
-      title: '提示', 
+      title: '提示',
       message: '文件夹不允许下载',
       type: 'warning'
     });
@@ -411,27 +435,27 @@ const dropdownDownload = (row) => {
 
   // 构建下载URL
   const downloadUrl = `${backendAddress}/api/v1/fs/file/${row.id}`;
-  
+
   // 创建XMLHttpRequest请求
   const xhr = new XMLHttpRequest();
   xhr.open('GET', downloadUrl, true);
   xhr.responseType = 'blob';
   xhr.setRequestHeader('Authorization', `Bearer ${token.value}`);
-  
-  xhr.onload = function() {
+
+  xhr.onload = function () {
     if (xhr.status === 200) {
       // 创建blob对象
       const blob = new Blob([xhr.response]);
-      
+
       // 创建临时下载链接
       const link = document.createElement('a');
       link.href = window.URL.createObjectURL(blob);
       link.download = row.file_name || row.name; // 设置下载文件名
-      
+
       // 添加到文档并触发点击
       document.body.appendChild(link);
       link.click();
-      
+
       // 清理
       document.body.removeChild(link);
       window.URL.revokeObjectURL(link.href);
@@ -443,15 +467,15 @@ const dropdownDownload = (row) => {
       });
     }
   };
-  
-  xhr.onerror = function() {
+
+  xhr.onerror = function () {
     ElNotification({
       title: '错误',
       message: '下载失败',
       type: 'error'
     });
   };
-  
+
   xhr.send();
 };
 
@@ -473,7 +497,7 @@ const token = ref(cookies.get('az'))
 const deleteJudgment = () => {
   if (dropdownSelecteDelete.value.type === 'file') {
     deletefile()
-  }else{
+  } else {
     deletefolder()
   }
 }
@@ -853,10 +877,32 @@ onMounted(() => {
   rootfolder(token)
   //用rootfolderid请求根目录文件
 
-
-
-
 })
+
+
+// 处理更多菜单命令
+const handleMoreCommand = ({type, row}) => {
+  switch(type) {
+    case 'rename':
+      handleRename(row)
+      break
+    case 'move': 
+      handleMove(row)
+      break
+  }
+}
+
+// 重命名处理
+const handleRename = (row) => {
+  // 实现重命名逻辑
+  console.log('重命名:', row)
+}
+
+// 移动处理  
+const handleMove = (row) => {
+  // 实现移动逻辑
+  console.log('移动:', row) 
+}
 </script>
 
 <style scoped>
@@ -1197,8 +1243,8 @@ onMounted(() => {
 /* 添加面包屑样式 */
 .breadcrumb-item {
   cursor: pointer;
-  /* 鼠标变成小�� */
-  color: #606266;
+  /* 鼠标变成小手 */
+  color: #666063;
   /* 默认颜色 */
   transition: color 0.3s;
   /* 颜色过渡效果 */
@@ -1226,6 +1272,8 @@ onMounted(() => {
 
 .action-btn {
   padding: 4px 12px;
+  border-radius: 10px !important; /* 或者其他合适的值 */
+
 }
 
 

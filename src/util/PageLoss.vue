@@ -11,10 +11,14 @@
   
   <script setup>
   import { useRouter } from 'vue-router'
-  
+  import { useCookies } from 'vue3-cookies';
+  const { cookies } = useCookies();
   const router = useRouter()
   
   const goHome = () => {
+    cookies.remove('currentFolderId');
+    cookies.remove('rootfolderid');
+    cookies.remove('az');
     router.push('/')
   }
   </script>
@@ -38,7 +42,7 @@
   h1 {
     font-size: 8rem;
     margin: 0;
-    color: #626aef;
+    color: #0c0c0c;
     line-height: 1;
   }
   
@@ -49,7 +53,7 @@
   }
   
   p {
-    color: #666;
+    color: #252525;
     margin-bottom: 2rem;
   }
   

@@ -1,144 +1,155 @@
 <template>
 	<BackAdmin>
-		<el-button type="primary" @click="openCreateDialog">新建用户</el-button>
-		<el-table :data="computedUsers" style="width: 100%">
-			<el-table-column prop="email" label="邮箱"></el-table-column>
-			<el-table-column prop="username" label="用户名"></el-table-column>
-			<el-table-column prop="capacity" label="容量"></el-table-column>
-			<el-table-column prop="time" label="时间"></el-table-column>
-			<el-table-column label="权限">
-				<template #default="scope">
-					<div class="permission-tags">
-						<el-tag v-if="scope.row.permissions.upload">上传</el-tag>
-						<el-tag v-if="scope.row.permissions.share">分享</el-tag>
-						<el-tag v-if="scope.row.permissions.download">下载</el-tag>
-						<el-tag v-if="scope.row.permissions.delete">删除</el-tag>
-					</div>
-				</template>
-			</el-table-column>
-			<el-table-column label="操作">
-				<template #default="scope">
-					<el-button type="primary" @click="openEditDialog(scope.row)">编辑</el-button>
-					<el-button type="danger" @click="deleteUser(scope.row)">删除</el-button>
-				</template>
-			</el-table-column>
-		</el-table>
+		<div style="padding: 15px;box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);height: calc(100% - 50px);">
+			<el-table :data="computedUsers" style="width: 100%">
+				<el-table-column prop="email" label="邮箱"></el-table-column>
+				<el-table-column prop="username" label="用户名"></el-table-column>
+				<el-table-column prop="quotaDisplay" label="容量"></el-table-column>
+				<el-table-column prop="created_at" label="创建时间"></el-table-column>
+				<el-table-column prop="roleNames" label="角色"></el-table-column>
+				<el-table-column label="操作">
+					<template #default="scope">
+						<el-button type="primary" @click="openEditDialog(scope.row)" size="small" plain style="border-radius: 10px !important;">修改</el-button>
+						<el-divider direction="vertical" />
+						<el-button type="danger" @click="deleteUser(scope.row)" size="small" plain style="border-radius: 10px !important;">删除</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
 
-		<el-dialog :title="dialogTitle" v-model="dialogVisible" :close-on-click-modal="true" width="500px">
-			<el-form :model="form" label-width="80px" class="dialog-form">
-				<el-form-item label="邮箱">
-					<el-input v-model="form.email" placeholder="请输入邮箱"></el-input>
-				</el-form-item>
-				<el-form-item label="用户名">
-					<el-input v-model="form.username" placeholder="请输入用户名"></el-input>
-				</el-form-item>
-				<el-form-item label="密码">
-					<el-input type="password" v-model="form.password" placeholder="请输入密码，留空则不修改"></el-input>
-				</el-form-item>
-				<el-form-item label="容量">
-					<el-input v-model="form.capacity" placeholder="请输入容量"></el-input>
-				</el-form-item>
-				<el-form-item label="权限">
-					<div class="permissions-switches">
-						<div class="permission-row">
-							<el-switch v-model="form.permissions.upload" active-text="上传"></el-switch>
-							<el-switch v-model="form.permissions.share" active-text="分享"></el-switch>
-						</div>
-						<div class="permission-row">
-							<el-switch v-model="form.permissions.download" active-text="下载"></el-switch>
-							<el-switch v-model="form.permissions.delete" active-text="删除"></el-switch>
-						</div>
-					</div>
-				</el-form-item>
-			</el-form>
-			<template #footer>
-				<el-button @click="dialogVisible = false">取消</el-button>
-				<el-button type="primary" @click="handleSaveUser">保存</el-button>
-			</template>
-		</el-dialog>
+			<!-- 修改用户信息的弹窗 -->
+			<el-dialog title="修改用户信息" v-model="dialogVisible" width="500px">
+				<div class="dialog-form">
+					<el-form :model="form" :rules="rules" ref="formRef" label-width="100px">
+						<el-form-item label="邮箱">
+							<el-input v-model="form.email"></el-input>
+						</el-form-item>
+						<el-form-item label="用户名">
+							<el-input v-model="form.username"></el-input>
+						</el-form-item>
+						<el-form-item label="密码">
+							<el-input v-model="form.password" type="password" show-password></el-input>
+						</el-form-item>
+					</el-form>
+				</div>
+				<template #footer>
+					<span class="dialog-footer">
+						<el-button @click="dialogVisible = false">取消</el-button>
+						<el-button type="primary" @click="handleSaveUser">确定</el-button>
+					</span>
+				</template>
+			</el-dialog>
+		</div>
 	</BackAdmin>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, inject } from 'vue';
 import BackAdmin from '@/layouts/BackAdmin.vue';
+import axios from 'axios';
+import axiosInstance from '@/config/axiosInstance';
+import { useCookies } from 'vue3-cookies';
+import { ElNotification } from 'element-plus';
+const { cookies } = useCookies();
+const backendAddress = inject('backendAddress');
+const users = ref([]);
 
-const users = ref([
-	{
-		email: 'admin@example.com',
-		username: 'Admin',
-		capacity: '2048',
-		time: '2024-11-13 21:53:38',
-		permissions: {
-			upload: true,
-			share: true,
-			download: true,
-			delete: true
-		}
-	},
-]);
+// 格式化容量显示
+const formatQuota = (bytes) => {
+	const gb = bytes / (1024 * 1024 * 1024);
+	return `${gb.toFixed(2)}GB`;
+};
+
 const computedUsers = computed(() => {
 	return users.value.map(user => ({
 		...user,
-		capacity: (parseInt(user.capacity) / 1024) + 'G'
+		quotaDisplay: formatQuota(user.quota),
+		roleNames: user.roles.map(role => role.Name).join(', ')
 	}));
 });
 
+const fetchUsers = async () => {
+	try {
+		const token = cookies.get('az');
+		const response = await axiosInstance.get(`${backendAddress}/api/v1/admin/users`, {
+			headers: {
+				'Authorization': `Bearer ${token}`
+			}
+		});
+		if (response.data.code === 200) {
+			users.value = response.data.data;
+		}
+	} catch (error) {
+		console.error('获取用户列表失败:', error);
+	}
+};
 
 const dialogVisible = ref(false);
-const dialogTitle = ref('新建用户');
 const form = ref({
 	email: '',
 	username: '',
 	password: '',
-	capacity: '',
-	permissions: {
-		upload: false,
-		share: false,
-		download: false,
-		delete: false
-	}
 });
 
-const openCreateDialog = () => {
-	dialogTitle.value = '新建用户';
+const formRef = ref(null);
+
+const rules = {
+	password: [
+		{ required: true, message: '请输入密码', trigger: 'blur' },
+		{ min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+	]
+};
+
+const openEditDialog = (user) => {
 	form.value = {
-		email: '',
-		username: '',
+		email: user.email,
+		username: user.username,
 		password: '',
-		capacity: localStorage.getItem("capacity") + "MB",
-		permissions: {
-			upload: false,
-			share: false,
-			download: false,
-			delete: false
-		}
 	};
 	dialogVisible.value = true;
 };
 
-const openEditDialog = (user) => {
-	dialogTitle.value = '编辑用户';
-	form.value = { ...user, password: '' };
-	dialogVisible.value = true;
-};
-
-const handleSaveUser = () => {
-	if (dialogTitle.value === '新建用户') {
-		console.log('创建用户', form.value);
-	} else {
-		console.log('编辑用户', form.value);
+const handleSaveUser = async () => {
+	try {
+		await formRef.value.validate();
+		const token = cookies.get('az');
+		const body = {
+			email: form.value.email,
+			name: form.value.username,
+			password: form.value.password,
+		}
+		const response = await axios.put(`${backendAddress}/api/v1/admin/users`, body, {
+			headers: {
+				'Authorization': `Bearer ${token}`
+			}
+		});
+		if(response.data.code === 200){
+			ElNotification({
+				duration: 2000,
+				title: 'success',
+				message: '保存成功',
+				type: 'success',
+			})
+			dialogVisible.value = false;
+			await fetchUsers(); // 刷新用户列表
+		}
+	} catch (error) {
+		ElNotification({
+			title: 'Error',
+			message: error.message || '保存失败',
+			type: 'error',
+		})
 	}
-	dialogVisible.value = false;
 };
 
-const deleteUser = (user) => {
-	console.log('删除用户', user);
-	// 添加删除用户的逻辑
+const deleteUser = async (user) => {
+	console.log(user)
+	// 这里需要实现删除用户的逻辑
+	await fetchUsers(); // 刷新用户列表
 };
+
 onMounted(() => {
-	console.log(localStorage.getItem("register"))
-})  
+	fetchUsers();
+});
 </script>
 
 <style scoped>
@@ -157,23 +168,28 @@ onMounted(() => {
 	border-top: 1px solid #ebeef5;
 }
 
-.el-button {
-	margin-left: 10px;
-}
-
 .permission-tags {
 	display: flex;
 	gap: 5px;
 }
 
-.permissions-switches {
-	display: flex;
-	flex-direction: column;
-	gap: 15px;
+.permissions-container {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 20px;
+	padding: 10px 0;
+	padding-top: 0;
 }
 
-.permission-row {
+.permission-item {
 	display: flex;
-	gap: 20px;
+	align-items: center;
+	/* gap: 10px; */
+}
+
+.permission-label {
+	font-size: 14px;
+	padding-left: 10px;
+	color: #606266;
 }
 </style>
