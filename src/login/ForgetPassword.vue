@@ -1,11 +1,11 @@
 <template>
   <div class="register-page">
     <div class="register-box">
-      <div class="title">注册</div>
+      <div class="title">找回密码</div>
       <div class="close-icon" @click="handleClose">×</div>
       
       <el-form 
-        :model="registerForm" 
+        :model="formData" 
         :rules="rules" 
         ref="formRef" 
         class="form-container"
@@ -13,25 +13,17 @@
         <!-- 邮箱输入框 -->
         <el-form-item prop="email">
           <el-input 
-            v-model="registerForm.email" 
+            v-model="formData.email" 
             placeholder="邮箱"
           />
         </el-form-item>
 
-        <!-- 用户名输入框 -->
-        <el-form-item prop="username">
-          <el-input 
-            v-model="registerForm.username" 
-            placeholder="用户名"
-          />
-        </el-form-item>
-
-        <!-- 密码输入框 -->
+        <!-- 新密码输入框 -->
         <el-form-item prop="password">
           <el-input 
-            v-model="registerForm.password" 
+            v-model="formData.password" 
             type="password" 
-            placeholder="密码"
+            placeholder="新密码"
             show-password
           />
         </el-form-item>
@@ -39,7 +31,7 @@
         <!-- 确认密码输入框 -->
         <el-form-item prop="confirmPassword">
           <el-input 
-            v-model="registerForm.confirmPassword" 
+            v-model="formData.confirmPassword" 
             type="password" 
             placeholder="确认密码"
             show-password
@@ -47,15 +39,15 @@
         </el-form-item>
 
         <!-- 验证码输入框和按钮 -->
-        <el-form-item prop="captcha">
+        <el-form-item prop="emailCode">
           <div class="captcha-container">
             <el-input 
-              v-model="registerForm.captcha" 
+              v-model="formData.emailCode" 
               placeholder="验证码"
             />
             <el-button 
               :disabled="countdown > 0"
-              @click="getCaptcha"
+              @click="sendEmailCode"
               class="captcha-btn"
               plain
               color="#626aef"
@@ -65,15 +57,15 @@
           </div>
         </el-form-item>
 
-        <!-- 注册按钮 -->
+        <!-- 提交按钮 -->
         <el-button 
           type="primary" 
           color="#626aef" 
           class="submit-btn"
-          @click="submitRegister"
+          @click="submitForm"
           :loading="loading"
         >
-          注册提交
+          重置密码
         </el-button>
       </el-form>
     </div>
@@ -85,21 +77,20 @@ import { ref, reactive, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElNotification } from 'element-plus'
 import axios from 'axios'
-const loading = ref(false)
+
 const router = useRouter()
 const formRef = ref(null)
-const backendAddress = inject('backendAddress')
+const loading = ref(false)
 const countdown = ref(0)
+const backendAddress = inject('backendAddress')
 
-const registerForm = reactive({
+const formData = reactive({
   email: '',
-  username: '',
   password: '',
   confirmPassword: '',
-  captcha: ''
+  emailCode: ''
 })
 
-// 表单验证规则
 const rules = {
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
@@ -109,10 +100,6 @@ const rules = {
       trigger: 'blur' 
     }
   ],
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 2, max: 20, message: '用户名长度在2-20个字符之间', trigger: 'blur' }
-  ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, max: 8, message: '密码长度在6-8位之间', trigger: 'blur' }
@@ -121,16 +108,16 @@ const rules = {
     { required: true, message: '请确认密码', trigger: 'blur' },
     {
       validator: (rule, value, callback) => {
-        if (value !== registerForm.password) {
-          callback(new Error('两次输入的密码不一致'));
+        if (value !== formData.password) {
+          callback(new Error('两次输入的密码不一致'))
         } else {
-          callback();
+          callback()
         }
       },
       trigger: ['blur', 'change']
     }
   ],
-  captcha: [
+  emailCode: [
     { required: true, message: '请输入验证码', trigger: 'blur' },
     { min: 6, max: 6, message: '验证码长度为6位', trigger: 'blur' }
   ]
@@ -140,9 +127,9 @@ const handleClose = () => {
   router.push('/login')
 }
 
-// 获取验证码
-const getCaptcha = async () => {
-  if (!registerForm.email) {
+// 发送验证码
+const sendEmailCode = async () => {
+  if (!formData.email) {
     ElNotification({
       duration: 2000,
       title: 'error',
@@ -152,17 +139,10 @@ const getCaptcha = async () => {
     })
     return
   }
-  countdown.value = 60
-      const timer = setInterval(() => {
-        if (countdown.value > 0) {
-          countdown.value--
-        } else {
-          clearInterval(timer)
-        }
-      }, 1000)
+
   try {
     const res = await axios.post(`${backendAddress}/api/v1/public/send/emailcode`, {
-      email: registerForm.email
+      email: formData.email
     })
     
     if (res.data.code === 200) {
@@ -184,7 +164,6 @@ const getCaptcha = async () => {
       }, 1000)
     }
   } catch (error) {
-    console.error('获取验证码失败:', error)
     ElNotification({
       duration: 2000,
       title: 'error',
@@ -195,61 +174,30 @@ const getCaptcha = async () => {
   }
 }
 
-// 提交注册
-const submitRegister = async () => {
-  // 表单验证
-  if (!registerForm.email || !registerForm.username || !registerForm.password || !registerForm.confirmPassword || !registerForm.captcha) {
-    ElNotification({
-      duration: 2000,
-      title: 'error',
-      message: '请填写完整信息',
-      type: 'error',
-      showClose: false,
-    })
-    return
-  }
-
-  if (registerForm.password !== registerForm.confirmPassword) {
-    ElNotification({
-      duration: 2000,
-      title: 'error',
-      message: '两次密码不一致',
-      type: 'error',
-      showClose: false,
-    })
-    return
-  }
-
-  if (registerForm.password.length < 6 || registerForm.password.length > 8) {
-    ElNotification({
-      duration: 2000,
-      title: 'error',
-      message: '密码长度必须在6-8位之间',
-      type: 'error',
-      showClose: false,
-    })
-    return
-  }
-
+// 提交表单
+const submitForm = async () => {
+  if (!formRef.value) return
+  
   try {
+    await formRef.value.validate()
     loading.value = true
-    const res = await axios.post(`${backendAddress}/api/v1/public/register`, {
-      email: registerForm.email,
-      username: registerForm.username,
-      password: registerForm.password,
-      email_code: registerForm.captcha
+    
+    const res = await axios.post(`${backendAddress}/api/v1/public/reset/password`, {
+      email: formData.email,
+      password: formData.password,
+      email_code: formData.emailCode
     })
 
     if (res.data.code === 200) {
       ElNotification({
         duration: 2000,
         title: 'success',
-        message: '注册成功',
+        message: '密码重置成功',
         type: 'success',
         showClose: false,
       })
       router.push('/login')
-    }else{
+    } else {
       ElNotification({
         duration: 2000,
         title: 'error',
@@ -259,15 +207,14 @@ const submitRegister = async () => {
       })
     }
   } catch (error) {
-    console.error('注册失败:', error)
     ElNotification({
       duration: 2000,
       title: 'error',
-      message: '注册失败',
+      message: '密码重置失败',
       type: 'error',
       showClose: false,
     })
-  }finally{
+  } finally {
     loading.value = false
   }
 }
@@ -287,7 +234,7 @@ const submitRegister = async () => {
 
 .register-box {
   width: 500px;
-  height: 470px;
+  height: 400px;
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
   border-radius: 30px;
@@ -361,24 +308,19 @@ const submitRegister = async () => {
 .captcha-btn {
   width: 120px;
   border-radius: 10px;
-
 }
-
 
 .submit-btn {
   width: 100%;
   height: 40px;
   border-radius: 20px;
-  /* background-color: #626aef; */
   /* margin-top: 15px; */
 }
 
-/* 确保输入框宽度一致 */
 :deep(.el-input) {
   width: 100%;
 }
 
-/* 输入框获得焦点时的样式 */
 :deep(.el-input__wrapper.is-focus) {
   box-shadow: 0 0 0 1px #626aef !important;
 }

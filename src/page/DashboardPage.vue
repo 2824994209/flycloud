@@ -203,25 +203,14 @@
                   <el-dropdown-item :command="{type: 'move', row: row}">移动</el-dropdown-item> -->
                   <el-dropdown-menu>
                     <div style="padding: 5px 2px;">
-                      <el-button 
-                        class="action-btn"
-                        @click="handleMoreCommand({type: 'rename', row: row})"
-                        type="primary"
-                        plain
-                        size="small"
-                        style="margin-bottom: 10px;margin-left: 10px;margin-right: 10px;" 
-                      >
+                      <el-button class="action-btn" @click="handleMoreCommand({ type: 'rename', row: row })"
+                        type="primary" plain size="small"
+                        style="margin-bottom: 10px;margin-left: 10px;margin-right: 10px;">
                         重写
                       </el-button>
                       <br>
-                      <el-button
-                        class="action-btn"
-                        @click="handleMoreCommand({type: 'move', row: row})"
-                        type="primary" 
-                        plain
-                        size="small"
-                        style="margin-left: 10px;margin-right: 10px;" 
-                      >
+                      <el-button class="action-btn" @click="handleMoreCommand({ type: 'move', row: row })" type="primary"
+                        plain size="small" style="margin-left: 10px;margin-right: 10px;">
                         移动
                       </el-button>
                     </div>
@@ -331,6 +320,28 @@
         </el-input>
       </div>
     </div>
+  </el-dialog>
+  <el-dialog v-model="renameDialogVisible" title="重命名" width="500px">
+    <div class="rename-content">
+      <el-form :model="renameForm" label-width="80px">
+        <el-form-item label="文件名">
+          <el-input v-model="renameForm.prefix" disabled />
+        </el-form-item>
+        <el-form-item label="后缀名">
+          <el-input v-model="renameForm.suffix" disabled />
+        </el-form-item>
+        <el-form-item label="新名称">
+          <el-input v-model="renameForm.newName" placeholder="请输入新名称" />
+        </el-form-item>
+
+      </el-form>
+    </div>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button type="primary" @click="confirmRename" color="#626aef">确认</el-button>
+        <el-button @click="renameDialogVisible = false" plain color="#626aef">取消</el-button>
+      </div>
+    </template>
   </el-dialog>
 </template>
 <script setup>
@@ -881,12 +892,12 @@ onMounted(() => {
 
 
 // 处理更多菜单命令
-const handleMoreCommand = ({type, row}) => {
-  switch(type) {
+const handleMoreCommand = ({ type, row }) => {
+  switch (type) {
     case 'rename':
       handleRename(row)
       break
-    case 'move': 
+    case 'move':
       handleMove(row)
       break
   }
@@ -894,14 +905,113 @@ const handleMoreCommand = ({type, row}) => {
 
 // 重命名处理
 const handleRename = (row) => {
-  // 实现重命名逻辑
-  console.log('重命名:', row)
+  renameDialogVisible.value = true
+  const name = row.type === 'folder' ? row.name : row.file_name
+  const suffix = row.type === 'file' ? `.${row.file_type}` : ''
+
+  renameForm.value = {
+    prefix: name,
+    newName: name.replace(suffix, ''),
+    suffix: suffix,
+    originalName: name,
+    fileId: row.id,
+    type: row.type
+  }
 }
 
 // 移动处理  
 const handleMove = (row) => {
   // 实现移动逻辑
-  console.log('移动:', row) 
+  console.log('移动:', row)
+}
+// 重命名弹窗
+const renameDialogVisible = ref(false)
+const renameForm = ref({
+  prefix: '',
+  newName: '',
+  suffix: '',
+  originalName: '',
+  fileId: null,
+  type: ''
+})
+
+// 确认重命名
+const confirmRename = async () => {
+  const newFullName = renameForm.value.newName + renameForm.value.suffix
+  console.log('新的完整名称:', newFullName)
+  console.log('文件ID:', renameForm.value.fileId)
+  console.log('文件类型:', renameForm.value.type)
+  if (renameForm.value.type === 'file') {
+    // 调用重命名API
+    try {
+      const response = await axiosInstance.post(`${backendAddress}/api/v1/fs/file/rename`, {
+        file_id: renameForm.value.fileId,
+        new_file_name: newFullName
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token.value}`
+        }
+      })
+      console.log(response)
+      if (response.status === 200) {
+        fetchFolderData(cookies.get('currentFolderId'), token.value)
+        ElNotification({
+          title: '成功',
+          message: '重命名成功',
+          type: 'success'
+        })
+      } else {
+        ElNotification({
+          title: '错误',
+          message: '重命名失败',
+          type: 'error'
+        })
+      }
+      renameDialogVisible.value = false
+    } catch (error) {
+      console.error('重命名失败:', error)
+      ElNotification({
+        title: '错误',
+        message: '重命名失败',
+        type: 'error'
+      })
+    }
+  } else if (renameForm.value.type === 'folder') {
+    // 调用重命名API
+    try {
+      const response = await axiosInstance.post(`${backendAddress}/api/v1/fs/folder/rename`, {
+        folder_id: renameForm.value.fileId,
+        new_name: newFullName
+      }, {
+      headers: {
+        'Authorization': `Bearer ${token.value}`
+        }
+      })
+      console.log(response)
+      if (response.status === 200) {
+        fetchFolderData(cookies.get('currentFolderId'), token.value)
+        ElNotification({
+          title: '成功',
+          message: '重命名成功',
+          type: 'success'
+        })
+      } else {
+        ElNotification({
+          title: '错误',
+          message: '重命名失败',
+          type: 'error'
+        })
+      }
+      renameDialogVisible.value = false
+    } catch (error) {
+      console.error('重命名失败:', error)
+      ElNotification({
+        title: '错误',
+        message: '重命名失败',
+        type: 'error'
+      })
+    }
+  }
 }
 </script>
 
@@ -1272,7 +1382,8 @@ const handleMove = (row) => {
 
 .action-btn {
   padding: 4px 12px;
-  border-radius: 10px !important; /* 或者其他合适的值 */
+  border-radius: 10px !important;
+  /* 或者其他合适的值 */
 
 }
 
@@ -1320,5 +1431,10 @@ const handleMove = (row) => {
 
 :deep(.el-dialog__headerbtn) {
   top: 16px;
+}
+
+/* 添加重命名弹窗样式 */
+.rename-content {
+  padding: 20px;
 }
 </style>

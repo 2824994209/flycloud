@@ -58,6 +58,14 @@ const createFolder = async () => {
         type: 'success',
         showClose: false
       });
+    }else{
+      ElNotification({
+        duration: 2000,
+        title: 'error',
+        message: res.data.msg,
+        type: 'error',
+        showClose: false
+      });
     }
   } catch (error) {
     console.error('创建文件夹失败:', error);

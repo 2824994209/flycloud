@@ -17,6 +17,7 @@ import HistoryDate from '@/page/HistoryDate.vue';
 import LittleStar from '@/util/LittleStar.vue';
 import PageLoss from '@/util/PageLoss.vue';
 import UserRole from '@/admin_page/UserRole.vue';
+import ForgetPassword from '@/login/ForgetPassword.vue';
 const routes = [
   { 
     path: '/', 
@@ -32,6 +33,9 @@ const routes = [
   // { path: '/ces', component: HelloWorld, meta: { requiresAuth: true } },
   { path: '/login', name: 'LoginPage', component: LoginPage },
   { path: '/register', component: RegisterPage },
+  { path: '/forget-password', component: ForgetPassword },
+
+
   { path: '/user/personal', component: PageDashboard, meta: { requiresAuth: true }},
   { path: '/user/setting', component: BasicSetting, meta: { requiresAuth: true }},
   { path: '/user/share', component: UserShare,meta: { requiresAuth: true } },

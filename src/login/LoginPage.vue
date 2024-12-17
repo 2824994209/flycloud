@@ -44,6 +44,7 @@
             />
           </div>
         </el-form-item>
+        <a href="#" class="forget-password" @click="goToForgetPassword">找回密码</a>
 
         <!-- 按钮组 -->
         <div class="button-group">
@@ -195,7 +196,9 @@ const submitLogin = async () => {
     isLoading.value = false
   }
 }
-
+const goToForgetPassword = () => {
+  router.push('/forget-password')
+}
 // 组件挂载时获取验证码
 onMounted(() => {
   refreshCaptcha()
@@ -296,7 +299,7 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   gap: 50px;
-  margin-top: 20px;
+  margin-top: 0px;
 }
 
 :deep(.el-button) {
@@ -353,4 +356,11 @@ onMounted(() => {
         transform: rotate(360deg);
       }
     }
+.forget-password{
+  text-align: left;
+  font-size: 12px;
+  color: #626aef;
+  margin-left: 10px;
+  margin-top: -20px;
+}
 </style>
