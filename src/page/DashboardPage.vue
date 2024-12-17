@@ -343,11 +343,55 @@
       </div>
     </template>
   </el-dialog>
+
+  <!-- 添加移动弹窗 -->
+  <el-dialog v-model="moveDialogVisible" title="移动到" width="500px">
+    <div class="move-dialog-content">
+      <!-- 面包屑导航 -->
+      <div class="move-breadcrumb">
+        <el-breadcrumb separator="/">
+          <!-- <el-breadcrumb-item @click="moveToRoot">
+            <span>根目录</span>
+          </el-breadcrumb-item> -->
+          <el-breadcrumb-item 
+            v-for="(item, index) in moveBreadcrumbs" 
+            :key="index" 
+            @click="moveToFolder(item)">
+            {{ item.name }}
+          </el-breadcrumb-item>
+        </el-breadcrumb>
+      </div>
+      
+      <!-- 文件夹列表 -->
+      <div class="folder-list">
+        <div v-if="moveFolders.length === 0" class="no-folders">
+          当前目录为空
+        </div>
+        <div 
+          v-for="folder in moveFolders"
+          :key="folder.id"
+          class="folder-item"
+          @click="moveToFolder(folder)"
+          :class="{ 'disabled': isCurrentOrChild(folder) }">
+          <el-icon><Folder /></el-icon>
+          <span>{{ folder.name }}</span>
+        </div>
+      </div>
+    </div>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button type="primary" @click="confirmMove" :disabled="!canMove" color="#626aef">
+          移动到此处
+        </el-button>
+        <el-button @click="moveDialogVisible = false" color="#626aef" plain>取消</el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 <script setup>
 import MainLayout from '@/layouts/MainLayout.vue';
 import axiosInstance from '@/config/axiosInstance';
-import { ref, onMounted, inject, provide } from 'vue'
+import { ref, onMounted, inject, provide,computed } from 'vue'
 import { ElNotification } from 'element-plus'
 // import axiosInstance from 'axios';
 import { useCookies } from 'vue3-cookies';
@@ -920,10 +964,10 @@ const handleRename = (row) => {
 }
 
 // 移动处理  
-const handleMove = (row) => {
-  // 实现移动逻辑
-  console.log('移动:', row)
-}
+// const handleMove = (row) => {
+//   // 实现移动逻辑
+//   console.log('移动:', row)
+// }
 // 重命名弹窗
 const renameDialogVisible = ref(false)
 const renameForm = ref({
@@ -1011,6 +1055,117 @@ const confirmRename = async () => {
         type: 'error'
       })
     }
+  }
+}
+
+// 添加移动弹窗
+const moveDialogVisible = ref(false)
+const moveBreadcrumbs = ref([])
+const moveFolders = ref([])
+const currentMoveItem = ref(null)
+const currentMoveFolder = ref(null)
+
+// 处理移动
+const handleMove = async (row) => {
+  if(row.type === 'folder'){
+    ElNotification({
+      title: '提示',
+      message: '不能移动文件夹',
+      type: 'warning'
+    })
+  }else{
+    currentMoveItem.value = row
+    moveDialogVisible.value = true
+    // 初始化移动对话框，加载根目录
+    await loadMoveFolder(cookies.get('rootfolderid'))
+    
+  }
+}
+
+// 加载文件夹内容
+const loadMoveFolder = async (folderId) => {
+  try {
+    const res = await axiosInstance.get(`${backendAddress}/api/v1/fs/folder/${folderId}`, {
+      headers: {
+        'Authorization': `Bearer ${token.value}`
+      }
+    })
+    if (res.status === 200) {
+      moveFolders.value = res.data.data.folders || []
+      moveBreadcrumbs.value = res.data.data.breadcrumbs
+      currentMoveFolder.value = folderId
+    }
+  } catch (error) {
+    console.error('加载文件夹失败:', error)
+    ElNotification({
+      title: '错误',
+      message: '加载文件夹失败',
+      type: 'error'
+    })
+  }
+}
+
+// 移动到根目录
+// const moveToRoot = () => {
+//   loadMoveFolder(cookies.get('rootfolderid'))
+// }
+
+// 移动到指定文件夹
+const moveToFolder = (folder) => {
+  if (isCurrentOrChild(folder)) return
+  loadMoveFolder(folder.id)
+}
+
+// 检查是否是当前文件夹或其子文件夹
+const isCurrentOrChild = (folder) => {
+  if (currentMoveItem.value.type === 'folder') {
+    return folder.id === currentMoveItem.value.id
+  }
+  return false
+}
+
+// 确认是否可以移动
+const canMove = computed(() => {
+  if (!currentMoveFolder.value || !currentMoveItem.value) return false
+  if (currentMoveItem.value.type === 'file') {
+    return true
+  }
+  return false
+})
+
+// 确认移动
+const confirmMove = async () => {
+  try {
+    const response = await axiosInstance.post(`${backendAddress}/api/v1/fs/file/move`, {
+      file_id: currentMoveItem.value.id,
+      folder_id: currentMoveFolder.value
+    }, {
+      headers: {
+        'Authorization': `Bearer ${token.value}`
+      }
+    })
+    if (response.status === 200) {
+      fetchFolderData(cookies.get('currentFolderId'), token.value)
+      ElNotification({
+        title: '成功',
+        message: '移动成功',
+        type: 'success'
+      })
+    } else {
+      ElNotification({
+        title: '错误',
+        message: '移动失败',
+        type: 'error'
+      })
+    }
+    moveDialogVisible.value = false
+  } catch (error) {
+    console.error('移动失败:', error)
+    ElNotification({
+      title: '错误',
+      message: '移动失败',
+      type: 'error'
+    })
   }
 }
 </script>
@@ -1436,5 +1591,77 @@ const confirmRename = async () => {
 /* 添加重命名弹窗样式 */
 .rename-content {
   padding: 20px;
+}
+
+.move-dialog-content {
+  padding: 20px;
+}
+
+.move-breadcrumb {
+  margin-bottom: 15px;
+}
+
+.folder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.folder-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  font-size: 13px;
+}
+
+.folder-item:hover {
+  background-color: #f5f7fa;
+}
+
+.folder-item.disabled {
+  color: #909399;
+  cursor: not-allowed;
+}
+
+.folder-item .el-icon {
+  font-size: 16px;
+}
+
+.no-folders {
+  text-align: center;
+  color: #909399;
+  font-size: 13px;
+  padding: 15px 0;
+}
+
+/* 调整对话框按钮样式 */
+:deep(.el-dialog__footer) {
+  padding: 10px 15px;
+}
+
+:deep(.el-dialog__body) {
+  padding: 10px;
+}
+
+:deep(.el-dialog__header) {
+  padding: 15px;
+  margin-right: 0;
+}
+
+:deep(.el-dialog__title) {
+  font-size: 15px;
+}
+
+/* 调整按钮大小 */
+.dialog-footer .el-button {
+  padding: 8px 15px;
+  font-size: 13px;
 }
 </style>
