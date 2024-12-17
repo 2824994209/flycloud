@@ -26,7 +26,7 @@
 						<el-form-item label="用户名">
 							<el-input v-model="form.username"></el-input>
 						</el-form-item>
-						<el-form-item label="密码">
+						<el-form-item label="密码" prop="password">
 							<el-input v-model="form.password" type="password" show-password></el-input>
 						</el-form-item>
 					</el-form>

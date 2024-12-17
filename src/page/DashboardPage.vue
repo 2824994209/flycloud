@@ -204,13 +204,13 @@
                   <el-dropdown-menu>
                     <div style="padding: 5px 2px;">
                       <el-button class="action-btn" @click="handleMoreCommand({ type: 'rename', row: row })"
-                        type="primary" plain size="small"
+                        type="primary" plain size="small" 
                         style="margin-bottom: 10px;margin-left: 10px;margin-right: 10px;">
                         重写
                       </el-button>
                       <br>
                       <el-button class="action-btn" @click="handleMoreCommand({ type: 'move', row: row })" type="primary"
-                        plain size="small" style="margin-left: 10px;margin-right: 10px;">
+                        plain size="small" style="margin-left: 10px;margin-right: 10px;" >
                         移动
                       </el-button>
                     </div>
@@ -232,7 +232,7 @@
         </el-icon>
       </div>
       <span class="delete-text">
-        删除{{ dropdownSelecteDelete?.type === 'folder' ? dropdownSelecteDelete.name : dropdownSelecteDelete.file_name }}？
+        删除{{ dropdownSelecteDelete?.type === 'folder' ? "文件夹"+dropdownSelecteDelete.name : "文件"+dropdownSelecteDelete.file_name }}？
       </span>
     </div>
     <template #footer>

@@ -28,14 +28,13 @@
           <template #default="scope">
             <el-button size="small" @click="copyShareLink(scope.row.code)" color="#626aef" plain>复制</el-button>
             <el-divider direction="vertical" />
-            <!-- <el-button size="small" @click="describeShare(scope.row)" color="#626aef">详细</el-button> -->
-            <el-button size="small" type="danger" @click="deleteShare(scope.row.id)">删除</el-button>
+            <el-button size="small" type="danger" @click="clickDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
   </MainLayout>
-  <el-dialog v-model="dialogVisible" title="分享详情" width="50%">
+  <!-- <el-dialog v-model="dialogVisible" title="分享详情" width="50%">
     <div class="share-detail">
       <div class="detail-item">
         <span class="label">分享码：</span>
@@ -54,7 +53,6 @@
         <span>{{ shareDetail.download_num }}/{{ shareDetail.max_download }}</span>
       </div>
       
-      <!-- 文件列表 -->
       <div v-if="shareDetail.files && shareDetail.files.length > 0">
         <div class="section-title">文件列表：</div>
         <div v-for="file in shareDetail.files" :key="file.id" class="file-item">
@@ -64,7 +62,6 @@
         </div>
       </div>
       
-      <!-- 文件夹列表 -->
       <div v-if="shareDetail.folders && shareDetail.folders.length > 0">
         <div class="section-title">文件夹列表：</div>
         <div v-for="folder in shareDetail.folders" :key="folder.id" class="file-item">
@@ -73,6 +70,26 @@
         </div>
       </div>
     </div>
+  </el-dialog> -->
+  <el-dialog v-model="dropdownDelete" title="确认删除" width="500px">
+    <div class="delete-confirm-content">
+      <div class="warning-icon-circle">
+        <el-icon class="warning-icon">
+          <Warning />
+        </el-icon>
+      </div>
+      <span class="delete-text">
+        确定要删除该分享吗？
+      </span>
+    </div>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button type="primary" @click="deleteJudgment()" color="#626aef">
+          确定
+        </el-button>
+        <el-button @click="dropdownDelete = false" color="#626aef" plain>取消</el-button>
+      </div>
+    </template>
   </el-dialog>
 </template>
 <script setup>
@@ -86,8 +103,10 @@ import { useCookies } from 'vue3-cookies';
 const { cookies } = useCookies();
 
 const shareList = ref([]);
-const dialogVisible = ref(false);
-const shareDetail = ref({});
+// const dialogVisible = ref(false);
+// const shareDetail = ref({});
+const dropdownDelete = ref(false);
+const dropdownSelecteDelete = ref({});
 
 // const describeShare = async (row) => {
 //   try {
@@ -148,7 +167,10 @@ const copyShareLink = (code) => {
     ElNotification.success('分享码和链接已复制到剪贴板');
   });
 };
-
+const clickDelete = (row) => {
+  dropdownSelecteDelete.value = row;
+  dropdownDelete.value = true;
+}
 // 删除分享
 const deleteShare = async (id) => {
   try {
@@ -171,16 +193,21 @@ const deleteShare = async (id) => {
 };
 
 // 文件大小格式化
-const formatFileSize = (size) => {
-  if (size < 1024) {
-    return `${size} B`;
-  } else if (size < 1024 * 1024) {
-    return `${(size / 1024).toFixed(2)} KB`;
-  } else if (size < 1024 * 1024 * 1024) {
-    return `${(size / (1024 * 1024)).toFixed(2)} MB`;
-  } else {
-    return `${(size / (1024 * 1024 * 1024)).toFixed(2)} GB`;
-  }
+// const formatFileSize = (size) => {
+//   if (size < 1024) {
+//     return `${size} B`;
+//   } else if (size < 1024 * 1024) {
+//     return `${(size / 1024).toFixed(2)} KB`;
+//   } else if (size < 1024 * 1024 * 1024) {
+//     return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+//   } else {
+//     return `${(size / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+//   }
+// };
+
+const deleteJudgment = () => {
+  deleteShare(dropdownSelecteDelete.value.id);
+  dropdownDelete.value = false;
 };
 
 onMounted(() => {
@@ -230,5 +257,35 @@ onMounted(() => {
   margin-left: auto;
   color: #909399;
   font-size: 13px;
+}
+
+.delete-confirm-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.warning-icon-circle {
+  background-color: #fff3f3;
+  border-radius: 50%;
+  padding: 10px;
+  margin-right: 15px;
+}
+
+.warning-icon {
+  color: #f56c6c;
+  font-size: 24px;
+}
+
+.delete-text {
+  font-size: 16px;
+  color: #606266;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }
 </style>

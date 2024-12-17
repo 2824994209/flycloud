@@ -105,7 +105,7 @@ onMounted(() => {
 }
 
 .timeline-content:hover {
-  background-color: #ece3f0;
+  background-color: #f5f7fa;
   cursor: pointer;
   /* transform: translateX(4px); */
   transform: scale(1.02);

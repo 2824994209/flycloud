@@ -357,10 +357,13 @@ onMounted(() => {
       }
     }
 .forget-password{
+  display: block;
+  width: 50px;
+  /* background-color: #d63939; */
   text-align: left;
   font-size: 12px;
-  color: #626aef;
-  margin-left: 10px;
-  margin-top: -20px;
+  color: #6f33e8;
+  margin-left: 16px;
+  margin-top: -8px;
 }
 </style>

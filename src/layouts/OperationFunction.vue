@@ -44,7 +44,7 @@
 		</MergeShare>
 		<!-- code上传分享文件 -->
 		<UploadShare>
-			<el-tooltip class="box-item" content="upload share 上传分享文件" placement="left">
+			<el-tooltip class="box-item" content="upload share 上传分享代码" placement="left">
 				<div class="dropdown-item">
 					<el-icon size="23px">
 						<Share />
