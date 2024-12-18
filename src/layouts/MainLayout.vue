@@ -486,6 +486,9 @@ a:hover {
 .el-menu-item.is-active {
   background-color: #f0f2f5 !important;
 }
+.el-menu-tooltip__trigger:hover{
+  background-color: #f0f2f5 !important;
+}
 
 
 </style>

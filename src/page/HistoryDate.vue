@@ -3,13 +3,24 @@
     <div>
       <span class="header-title">最近更新</span>
     </div>
-    <div class="shangc"></div>
+    <div class="shangc">
+        <div @click="scrollToTop" style="display: flex; align-items: center; color: #606266;" class="back-to-top-container">
+          <el-icon 
+          class="back-to-top" 
+        >
+          <ArrowUpBold />
+        </el-icon>
+        <span style="font-size:14px;color: #c7c0c0;cursor: pointer;color: #606266;">回到顶部</span>
+        </div>
+        
+    </div>
     <div 
       v-loading="isLoading"
       element-loading-text="Loading..."
-      element-loading-background="rgba(255, 255, 255, 0.8)"
+      element-loading-background="rgba(255, 255, 255, 0.5)"
       class="timeline-container" 
       style="height: calc(100vh - 240px);overflow: auto;"
+      @scroll="handleScroll"
     >
       <el-timeline>
         <el-timeline-item
@@ -40,25 +51,45 @@ const { cookies } = useCookies();
 const backendAddress = inject('backendAddress');
 const fileList = ref([]);
 const isLoading = ref(false);
+const page = ref(1);
+const hasMore = ref(true);
+const isLoadingMore = ref(false);
+// 添加控制按钮显示的变量
+const showBackToTop = ref(false);
 // 获取最近更新列表
-const getRecentUpdates = async () => {
+const getRecentUpdates = async (loadMore = false) => {
+  if (!loadMore) {
+    isLoading.value = true;
+  } else {
+    isLoadingMore.value = true;
+  }
   
   try {
-    isLoading.value = true;
     const token = cookies.get('az');
-    const { data } = await axios.get(`${backendAddress}/api/v1/fs/recent-updates`,{
+    const { data } = await axios.get(`${backendAddress}/api/v1/fs/recent-updates?page_size=5&page=${page.value}`,{
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
     if (data.code === 200) {
-      fileList.value = data.data.files;
+      if (loadMore) {
+        fileList.value = [...fileList.value, ...data.data.files];
+      } else {
+        fileList.value = data.data.files;
+      }
+      hasMore.value = data.data.files.length === 5;
+      window.location.hash = `page=${page.value}`;
+
     }
   } catch (error) {
     console.error('获取最近更新列表失败:', error);
     ElNotification.error('获取最近更新列表失败');
   } finally {
-    isLoading.value = false;
+    if (!loadMore) {
+      isLoading.value = false;
+    } else {
+      isLoadingMore.value = false;
+    }
   }
 };
 
@@ -80,6 +111,26 @@ const formatFileSize = (bytes) => {
 const getRandomType = () => {
   const types = ['primary', 'success', 'warning', 'info'];
   return types[Math.floor(Math.random() * types.length)];
+};
+
+// 修改滚动处理函数
+const handleScroll = async (e) => {
+  const { scrollHeight, scrollTop, clientHeight } = e.target;
+  // 控制回到顶部按钮的显示
+  showBackToTop.value = scrollTop > 300;
+  
+  if (scrollHeight - scrollTop - clientHeight < 50 && hasMore.value && !isLoadingMore.value) {
+    page.value++;
+    await getRecentUpdates(true);
+  }
+};
+
+// 添加回到顶部函数
+const scrollToTop = () => {
+  const container = document.querySelector('.timeline-container');
+  if (container) {
+    container.scrollTop = 0;
+  }
 };
 
 onMounted(() => {
@@ -153,6 +204,20 @@ onMounted(() => {
 }
 
 .shangc {
-  height: 10px;
+  height: 13px;
+}
+.back-to-top{
+  color: #c7c0c0;
+  font-size: 20px;
+  cursor: pointer;
+  /* padding-top: -5px; */
+  padding-left: 5px;
+}
+.back-to-top-container:hover{
+  color: #c7c0c0;
+  text-decoration:underline;
+}
+.header-title{
+  font-size: 15px;
 }
 </style>

@@ -30,12 +30,19 @@
               </el-icon>
               <span>基础设置</span>
             </el-menu-item> -->
-            <el-menu-item index="/admin/userrole">
+            <el-menu-item index="/admin/permission">
               <el-icon>
                 <UserFilled />
               </el-icon>
-              <span>用户角色</span>
+              <span>权限管理</span>
             </el-menu-item>
+            <!-- <el-menu-item index="/admin/role">
+              <el-icon>
+                <Message />
+              </el-icon>
+              <span>角色管理</span>
+            </el-menu-item> -->
+            
             <!-- <el-menu-item index="4">
               <el-icon>
                 <Message />

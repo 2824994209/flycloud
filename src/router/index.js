@@ -16,6 +16,7 @@ import UserShare from '@/page/UserShare.vue';
 import HistoryDate from '@/page/HistoryDate.vue';
 import LittleStar from '@/util/LittleStar.vue';
 import PageLoss from '@/util/PageLoss.vue';
+import RolePermissions from '@/admin_page/RolePermissions.vue';
 import UserRole from '@/admin_page/UserRole.vue';
 import ForgetPassword from '@/login/ForgetPassword.vue';
 const routes = [
@@ -29,7 +30,8 @@ const routes = [
   { path: '/admin/system', component: SystemExplain, meta: { requiresAuth: true } },
   { path: '/admin/user', component: UserManage, meta: { requiresAuth: true } },
   { path: '/admin/basic', component: adminBasicSetting, meta: { requiresAuth: true } },
-  { path: '/admin/userrole', component: UserRole, meta: { requiresAuth: true } },
+  { path: '/admin/permission', component: RolePermissions, meta: { requiresAuth: true } },
+  { path: '/admin/role', component: UserRole, meta: { requiresAuth: true } },
   // { path: '/ces', component: HelloWorld, meta: { requiresAuth: true } },
   { path: '/login', name: 'LoginPage', component: LoginPage },
   { path: '/register', component: RegisterPage },

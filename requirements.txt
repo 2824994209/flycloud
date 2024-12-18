@@ -1,0 +1,2 @@
+OperationFunction添加规则
+路由不是/user/personal的话 按钮隐藏

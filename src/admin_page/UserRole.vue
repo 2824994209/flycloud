@@ -1,12 +1,9 @@
 <template>
-    <BackAdmin>
-        <div>
-            用户角色
-        </div>
-    </BackAdmin>
+    <div>
+        
+    </div>
 </template>
 <script setup>
-import BackAdmin from '@/layouts/BackAdmin.vue'
 </script>
 <style>
     
