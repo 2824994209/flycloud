@@ -3,13 +3,12 @@
     <el-container>
       <el-header class="header">
         <div class="content">
-          <!-- <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" viewBox="0 0 16 16"><path fill="#7c3aed" d="M16 0L0 8l4.7 1.6L5 15l2.5-2.8L10 16zM7.5 10.4l4.3-5.9l-6.2 4.3l-3-1L14.2 2L9.7 13.8z"/></svg> -->
-          <div class="svg-container">
+          <!-- <div class="svg-container">
             <svg xmlns="http://www.w3.org/2000/svg" width="1.7em" height="1.7em" viewBox="0 0 56 56">
               <path fill="#9873d9"
                 d="M8.99 47.56h22.943c6.128 0 10.878-4.643 10.878-10.623v-.488c6.764-.254 10.92-4.029 12.49-8.12c.699-1.697-.212-3.245-1.867-3.245c-1.272 0-2.31.551-4.558.551c-5.407 0-8.27-2.99-8.27-7.909c0-2.396.742-3.71.742-4.898c0-1.739-1.505-2.608-3.371-1.972c-4.496 1.484-8.312 6.276-8.312 12.15c0 .19.02.382.02.572c-2.565-2.926-6.127-4.622-10.177-4.622c-7.019 0-12.892 5.407-13.592 12.383C2.375 32.442 0 35.495 0 39.354c0 4.771 3.584 8.206 8.99 8.206m23.792-24.639c0-4.092 2.438-7.294 5.216-8.82l.233.169a12.6 12.6 0 0 0-.678 4.092c0 6.086 4.453 10.284 10.602 10.284c1.505 0 2.904-.275 3.88-.594l.127.149c-1.293 2.502-4.601 5.152-9.966 5.152c-1.336-3.583-4.622-6.17-8.82-6.764c-.404-1.145-.594-2.396-.594-3.668M8.906 44.168c-3.605 0-5.513-2.078-5.513-4.729c0-2.248 1.314-4.22 4.431-5.068c1.018-.254 1.4-.72 1.485-1.802c.487-5.937 4.898-10.22 10.199-10.22c4.113 0 7.315 2.268 9.287 6.212c.445.912.976 1.23 2.057 1.23c5.47 0 8.567 3.308 8.567 7.252s-3.224 7.125-7.422 7.125Z" />
             </svg>
-          </div>
+          </div> -->
           <div class='content-input'>
             <el-select v-model="selectedValue" filterable remote reserve-keyword placeholder="search"
               :remote-method="handleSearch" :loading="loading"  @focus="showDropdown = true"
@@ -210,7 +209,8 @@ a:hover {
                 0 1px 15px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
-  background-color: #ffffff;
+  /* background-color: rgba(255, 255, 255, 0.7); */
+  background-color: transparent !important;
   transition: width 4s ease;
   /* 添加收起/展开动画 */
 }
@@ -220,7 +220,8 @@ a:hover {
   margin: 0 auto;
   border-radius: 10px;
   /* border: 2px solid #949492; */
-  background-color: rgb(255, 255, 255);
+  background-color: rgba(255, 255, 255,0.7);
+  
   height: 91.5vh;
 
 }
@@ -231,8 +232,8 @@ a:hover {
   align-items: center;
   padding: 0 20px;
   height: 60px;
-  background-color: rgba(255, 255, 255, 0.4);
-  box-shadow: 0 4px 6px -4px rgb(244, 240, 240);
+  /* background-color: rgba(255, 255, 255, 10); */
+  /* box-shadow: 0 4px 6px -4px rgb(244, 240, 240); */
 }
 
 .header .content {
@@ -255,6 +256,7 @@ a:hover {
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
+  background-color: transparent !important;
 }
 
 /* 下拉框样式 */
@@ -290,7 +292,7 @@ a:hover {
 
 .content-input {
   position: relative;
-  margin-left: calc(50% - 210px);
+  margin-left: auto;
   margin-right: auto;
   max-width: 100%;
 }
@@ -484,11 +486,20 @@ a:hover {
 
 /* 选中状态的背景色 */
 .el-menu-item.is-active {
-  background-color: #f0f2f5 !important;
+  background-color: rgba(255, 255, 255, 0.5) !important;
 }
 .el-menu-tooltip__trigger:hover{
-  background-color: #f0f2f5 !important;
+  background-color: rgba(255, 255, 255, 0.5) !important;
 }
+
+.el-menu {
+  background-color: transparent !important;
+}
+
+.el-menu-item {
+  background-color: transparent !important;
+}
+
 
 
 </style>

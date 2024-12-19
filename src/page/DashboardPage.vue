@@ -60,12 +60,12 @@
       </el-breadcrumb>
     </div>
     <div ref="tableContainer" class="table-container">
-      <el-table v-loading="loading" element-loading-text="Loading..."
-        element-loading-background="rgba(255, 255, 255, 1)" :data="tableData"
+      <el-table v-loading="loading" 
+        element-loading-background="rgba(255, 255, 255, 0.3)" :data="tableData"
         style="width: 100%; height: calc(100vh - 200px);" :row-style="{ height: rowHeight + 'px' }"
         @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" />
-        <el-table-column label="Name" min-width="150" show-overflow-tooltip>
+        <el-table-column label="Name" min-width="130" show-overflow-tooltip>
           <template #default="{ row }">
             <el-icon size="20" style="margin-bottom: 3px; vertical-align: middle;">
               <template v-if="row.type === 'folder'">
@@ -174,7 +174,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column property="actions" label="操作" width="280">
+        <el-table-column property="actions" label="操作" width="300">
           <template #default="{ row }">
             <div class="action-buttons">
               <el-button @click="Sharecontent(row)" class="action-btn" type="primary" plain color="#626aef"
@@ -1663,5 +1663,18 @@ const confirmMove = async () => {
 .dialog-footer .el-button {
   padding: 8px 15px;
   font-size: 13px;
+}
+/*最外层透明*/
+.el-table, .el-table__expanded-cell{
+    background-color: rgba(255, 255, 255, 0.2) !important;
+}
+/* 表格内背景颜色 */
+.el-table th,
+.el-table tr,
+.el-table td {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+.el-table{
+  border-radius: 10px;
 }
 </style>

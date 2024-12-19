@@ -141,7 +141,8 @@ onMounted(() => {
 <style scoped>
 .timeline-container {
   padding: 20px;
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.3);
+
   border-radius: 8px;
   /* box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1); */
   /* margin: 20px; */
@@ -151,12 +152,12 @@ onMounted(() => {
 .timeline-content {
   padding: 8px 12px;
   transition: all 0.3s ease;
-  border-radius: 6px;
-  background-color: #ffffff;
+  border-radius: 10px;
+  background-color: transparent;
 }
 
 .timeline-content:hover {
-  background-color: #f5f7fa;
+  background-color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   /* transform: translateX(4px); */
   transform: scale(1.02);

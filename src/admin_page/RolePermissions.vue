@@ -57,6 +57,20 @@
 			</div>
 		</template>
 	</el-dialog>
+	<!-- 添加删除确认对话框 -->
+	<el-dialog
+		v-model="deleteDialogVisible"
+		title="确认删除"
+		width="30%"
+	>
+		<span>确定要删除该角色吗？</span>
+		<template #footer>
+			<span class="dialog-footer">
+				<el-button @click="deleteDialogVisible = false">取消</el-button>
+				<el-button type="danger" @click="confirmDelete">确定</el-button>
+			</span>
+		</template>
+	</el-dialog>
 </template>
 
 <script setup>
@@ -74,6 +88,8 @@ const selectedPermissionIds = ref([])
 const allPermissions = ref([])
 const loading = ref(false)
 const addRoleDialogVisible = ref(false)
+const deleteDialogVisible = ref(false)
+const roleToDelete = ref(null)
 // 获取角色列表
 const fetchRoles = async () => {
 	try {
@@ -128,14 +144,20 @@ const handleEdit = (row) => {
 }
 
 // 删除角色
-const handleDelete = async (row) => {
-	console.log(row)
+const handleDelete = (row) => {
+	roleToDelete.value = row
+	deleteDialogVisible.value = true
+}
+
+// 添加确认删除方法
+const confirmDelete = async () => {
 	try {
-		// await ElMessageBox.confirm('确认删除该角色吗？', '提示', {
-		// 	type: 'warning'
-		// })
-		// 调用删除API
-		// await fetch(`/api/v1/admin/roles/${row.Id}`, { method: 'DELETE' })
+		const token = cookies.get('az');
+		await axios.delete(`${backendAddress}/api/v1/admin/roles/${roleToDelete.value.Id}`, {
+			headers: {
+				'Authorization': `Bearer ${token}`
+			}
+		})
 		ElNotification({
 			duration: 2000,
 			title: 'success',
@@ -152,7 +174,9 @@ const handleDelete = async (row) => {
 			type: 'error',
 			showClose: false
 		});
-
+	} finally {
+		deleteDialogVisible.value = false
+		roleToDelete.value = null
 	}
 }
 

@@ -523,6 +523,8 @@ onMounted(() => {
 
 <style scoped>
 .content-container {
+	width: 90%;
+	background-color: transparent;
 	padding: 20px;
 	display: flex;
 	flex-direction: column;
@@ -546,7 +548,7 @@ onMounted(() => {
 	max-height: 230px;
 	padding: 25px;
 	border-radius: 12px;
-	background-color: #fff;
+	background-color: rgba(255, 255, 255, 0.3);
 	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 	display: flex;
 	flex-direction: column;
@@ -613,7 +615,7 @@ h3 {
 
 .user-info {
   padding: 20px;
-  background-color: #f8f9fe;
+  background-color: rgba(255, 255, 255, 0.7);
   border-radius: 10px;
   margin-bottom: 20px;
 }
