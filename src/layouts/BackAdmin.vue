@@ -2,7 +2,7 @@
   <div class="admin-common-layout">
     <el-container>
       <el-header class="header">
-        <div class="title">flycloudisk 管理</div>
+        <div class="title">qpan 管理</div>
         <el-button class="logout-button" type="danger" @click="dialogVisible = true">
           <el-icon><SwitchButton /></el-icon>
           <!-- 退出登录 -->

@@ -19,8 +19,8 @@
 import { h, ref,inject } from 'vue';
 import { ElNotification } from 'element-plus';
 import { useCookies } from 'vue3-cookies';
-import axios from '@/config/axiosInstance';
-// import axios from 'axios';
+// import axios from '@/config/axiosInstance';
+import axios1 from 'axios';
 
 const { cookies } = useCookies();
 
@@ -91,7 +91,7 @@ export default {
     };
 
     const customRequest = async (options) => {
-      const { file, onProgress, onSuccess, onError } = options;
+      const { file, onProgress, onSuccess } = options;
       // const currentFolderId = localStorage.getItem('currentFolderId');
       const currentFolderId = cookies.get('currentFolderId');
       const token = cookies.get('az');
@@ -102,7 +102,7 @@ export default {
 
 
       try {
-        const response = await axios.post(`${backendAddress}/api/v1/fs/upload`, formData, {
+        const response = await axios1.post(`${backendAddress}/api/v1/fs/upload`, formData, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },
@@ -112,16 +112,47 @@ export default {
           },
         });
         onSuccess(response.data);
-        if(response.data.code !== 200) {
+        if(response.data.code === 403){
           ElNotification({
-            title: '上传失败',
-            message: `文件 ${file.name} 上传失败: ${response.data.msg || '未知错误'}`,
+            duration: 2000,
+            title: '权限不足',
+            message: response.data.data.msg || '权限不足',
             type: 'error',
-            duration: 3000,
-          }) 
+          })
+        }else if(response.data.code === 200){
+          ElNotification({
+            duration: 2000,
+            title: 'success',
+            message: '上传成功',
+            type: 'success',
+          })
         }
+        else{
+          ElNotification({
+            duration: 2000,
+            title: 'Error',
+            message: response.data.msg || '上传失败',
+            type: 'error',
+          })
+        }
+
       } catch (error) {
-        onError(error);
+        if(error.response.data.code === 403){
+          ElNotification({
+            duration: 2000,
+            title: '权限不足',
+            message: error.response.data.data.msg || '权限不足',
+            type: 'error',
+          })
+        }else{
+          ElNotification({
+            duration: 2000,
+            title: 'Error',
+            message: error.response.data.msg || '上传失败',
+            type: 'error',
+          })
+        }
+        // onError(error);
       }
     };
 

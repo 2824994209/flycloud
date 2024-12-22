@@ -68,6 +68,18 @@
 			</span>
 		</template>
 	</el-dialog>
+	<!-- 删除确认弹窗 -->
+	<el-dialog title="删除确认" v-model="deleteDialogVisible" width="400px">
+		<div class="delete-confirm-content">
+			<p>确定要删除该用户吗？此操作不可恢复。</p>
+		</div>
+		<template #footer>
+			<span class="dialog-footer">
+				<el-button @click="deleteDialogVisible = false">取消</el-button>
+				<el-button type="danger" @click="confirmDelete">确定</el-button>
+			</span>
+		</template>
+	</el-dialog>
 </template>
 
 <script setup>
@@ -182,11 +194,49 @@ const handleSaveUser = async () => {
 	}
 };
 
-const deleteUser = async (user) => {
-	console.log(user)
-	// 这里需要实现删除用户的逻辑
-	await fetchUsers(); // 刷新用户列表
+const deleteDialogVisible = ref(false);
+const userToDelete = ref(null);
+
+const deleteUser = (user) => {
+	userToDelete.value = user;
+	deleteDialogVisible.value = true;
 };
+
+const confirmDelete = async () => {
+	try {
+		const token = cookies.get('az');
+		const response = await axios.delete(`${backendAddress}/api/v1/admin/users/${userToDelete.value.id}`, {
+			headers: {
+				'Authorization': `Bearer ${token}`
+			}
+		})
+		if (response.data.code === 200) {
+			ElNotification({
+				duration: 2000,
+				title: 'success',
+				message: '删除用户成功',
+				type: 'success',
+			});
+			await fetchUsers(); // 刷新用户列表
+		} else {
+			ElNotification({
+				duration: 2000,
+				title: 'Error',
+				message: response.data.message || '删除失败',
+				type: 'error',
+			})
+		}
+	} catch (error) {
+		ElNotification({
+			title: 'Error',
+			message: error.message || '删除失败',
+			type: 'error',
+		})
+	} finally {
+		deleteDialogVisible.value = false;
+	}
+};
+
 const openRoleDialog = async (user) => {
 	form.value = {
 		...form.value,
@@ -206,7 +256,7 @@ const openRoleDialog = async (user) => {
 const roleBinding = async () => {
 	const token = cookies.get('az');
 	try {
-		const res = await axios.put(`${backendAddress}/api/v1/admin/users/${form.value.userId}/roles`, {
+		const res = await axios.post(`${backendAddress}/api/v1/admin/users/${form.value.userId}/roles`, {
 			role_id: form.value.role
 		}, {
 			headers: {

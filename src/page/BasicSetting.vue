@@ -615,7 +615,7 @@ h3 {
 
 .user-info {
   padding: 20px;
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.4);
   border-radius: 10px;
   margin-bottom: 20px;
 }

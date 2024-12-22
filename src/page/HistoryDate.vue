@@ -4,7 +4,7 @@
       <span class="header-title">最近更新</span>
     </div>
     <div class="shangc">
-        <div @click="scrollToTop" style="display: flex; align-items: center; color: #606266;" class="back-to-top-container">
+        <div @click="scrollToTop" style="display: block; align-items: center; color: #606266;" class="back-to-top-container">
           <el-icon 
           class="back-to-top" 
         >
@@ -16,8 +16,7 @@
     </div>
     <div 
       v-loading="isLoading"
-      element-loading-text="Loading..."
-      element-loading-background="rgba(255, 255, 255, 0.5)"
+      element-loading-background="rgba(255, 255, 255, 0.3)"
       class="timeline-container" 
       style="height: calc(100vh - 240px);overflow: auto;"
       @scroll="handleScroll"
@@ -190,10 +189,7 @@ onMounted(() => {
 }
 
 
-/* 添加滚动条美化 */
-.timeline-container::-webkit-scrollbar {
-  width: 6px;
-}
+
 
 .timeline-container::-webkit-scrollbar-thumb {
   background-color: #dcdfe6;

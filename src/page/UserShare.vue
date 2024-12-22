@@ -6,7 +6,7 @@
     <div class="shangc"></div>  
     <div class="table-container">
       <el-table :data="shareList" style="width: 100%; height: calc(100vh - 190px);" v-loading="loading"
-        element-loading-text="Loading..." element-loading-background="rgba(255, 255, 255, 1)">
+         element-loading-background="rgba(255, 255, 255,0.3)">
         <el-table-column type="selection" width="55" />
         <el-table-column prop="code" label="分享码" min-width="100" />
         <el-table-column prop="expire_time" label="过期时间" min-width="160" >
@@ -216,7 +216,7 @@ onMounted(() => {
 </script>
 <style scoped>
 .shangc {
-  height: 15px;
+  height: 10px;
 }
 
 .share-detail {

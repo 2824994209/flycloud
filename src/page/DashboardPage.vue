@@ -1278,6 +1278,7 @@ const confirmMove = async () => {
 
 .shangc {
   display: flex;
+  height: 10px;
 }
 
 
