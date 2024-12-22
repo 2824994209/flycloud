@@ -79,6 +79,8 @@ const getRecentUpdates = async (loadMore = false) => {
       hasMore.value = data.data.files.length === 5;
       window.location.hash = `page=${page.value}`;
 
+      // 添加：检查是否需要加载更多
+      checkAndLoadMore();
     }
   } catch (error) {
     console.error('获取最近更新列表失败:', error);
@@ -89,6 +91,18 @@ const getRecentUpdates = async (loadMore = false) => {
     } else {
       isLoadingMore.value = false;
     }
+  }
+};
+
+// 添加新函数：检查并加载更多内容
+const checkAndLoadMore = () => {
+  const container = document.querySelector('.timeline-container');
+  if (!container) return;
+  
+  // 如果内容高度小于容器高度，且还有更多数据，则自动加载
+  if (container.scrollHeight <= container.clientHeight && hasMore.value && !isLoadingMore.value) {
+    page.value++;
+    getRecentUpdates(true);
   }
 };
 
@@ -115,9 +129,9 @@ const getRandomType = () => {
 // 修改滚动处理函数
 const handleScroll = async (e) => {
   const { scrollHeight, scrollTop, clientHeight } = e.target;
-  // 控制回到顶部按钮的显示
   showBackToTop.value = scrollTop > 300;
   
+  // 距离底部50px时加载更多
   if (scrollHeight - scrollTop - clientHeight < 50 && hasMore.value && !isLoadingMore.value) {
     page.value++;
     await getRecentUpdates(true);
@@ -134,6 +148,15 @@ const scrollToTop = () => {
 
 onMounted(() => {
   getRecentUpdates();
+  
+  // 监听容器大小变化
+  const container = document.querySelector('.timeline-container');
+  if (container) {
+    const resizeObserver = new ResizeObserver(() => {
+      checkAndLoadMore();
+    });
+    resizeObserver.observe(container);
+  }
 });
 </script>
 
